@@ -1,19 +1,19 @@
 package com.neuro_sama.swarm;
 
+import android.annotation.SuppressLint;
+import android.os.Bundle;
+import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
-import static com.hivemq.client.mqtt.MqttGlobalPublishFilter.ALL;
-
-import android.annotation.SuppressLint;
-import android.os.Bundle;
-
-import com.google.android.material.tabs.TabItem;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
+
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,8 +23,7 @@ public class MainActivity extends AppCompatActivity {
     private List<Fragment> fragmentslist;
     private ViewPager2 viewPager2;
     private TabLayout tabLayout;
-
-
+    TextView textView;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -59,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
         new TabLayoutMediator(tabLayout, viewPager2, (tab, position) -> {
             switch (position) {
                 case 0:
+                    //tab.setCustomView(R.layout.iconfont_view);
                     tab.setText("Tab 1");
                     break;
                 case 1:
@@ -74,5 +74,10 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-
+//    @Override
+//    protected void onStart() {
+//        super.onStart();
+//        textView = fragmentslist.get(0).getView().findViewById(R.id.hello);
+//        textView.setText("hello");
+//    }
 }

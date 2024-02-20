@@ -11,6 +11,7 @@ import android.widget.TextView;
 public class IconFontView extends TextView {
     public IconFontView(Context context) {
         super(context);
+        init(context);
     }
 
     public IconFontView(Context context, AttributeSet attrs) {

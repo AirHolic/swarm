@@ -1,14 +1,81 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".Swarm1">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        >
 
-</FrameLayout>
+        <EditText
+            android:id="@+id/topic"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:ems="10"
+            android:inputType="none"
+            android:minHeight="48dp"
+            android:text="device_environment_aht10"
+            tools:ignore="LabelFor" />
+        <Button
+            android:id="@+id/sub_top"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="subscribe"
+            android:textAllCaps="false"/>
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/pubmsg"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/mqtt_msg"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="2"
+            android:autofillHints=""
+            android:ems="10"
+            android:inputType="textPersonName"
+            android:labelFor="@+id/mqtt_msg"
+            android:text="mqtt_msg"/>
+
+        <Button
+            android:id="@+id/pub"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="publish"
+            android:textAllCaps="false"
+            tools:ignore="TouchTargetSizeCheck" />
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:id="@+id/recv_msg"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/hello"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_weight="3"
+                android:gravity="center"
+                android:scrollbars="vertical"
+                android:textAllCaps="false" />
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>
