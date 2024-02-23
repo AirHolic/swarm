@@ -2,7 +2,10 @@ package com.neuro_sama.swarm;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
-import android.widget.TextView;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -13,8 +16,6 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
-import org.w3c.dom.Text;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,7 +24,12 @@ public class MainActivity extends AppCompatActivity {
     private List<Fragment> fragmentslist;
     private ViewPager2 viewPager2;
     private TabLayout tabLayout;
-    TextView textView;
+
+    Swarm1 swarm1 = Swarm1.newInstance("", "");
+    Bundle bundle = new Bundle();
+
+    mqtt_client mqtt_client = new mqtt_client();
+    Thread mqtt_thread = new Thread(mqtt_client);
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -34,10 +40,12 @@ public class MainActivity extends AppCompatActivity {
         viewPager2 = findViewById(R.id.viewPager2);
         tabLayout = findViewById(R.id.tabLayout);
 
-        fragmentslist = new ArrayList<Fragment>();
+        fragmentslist = new ArrayList<>();
+        fragmentslist.add(swarm1);
         fragmentslist.add(new Swarm1());
         fragmentslist.add(new Swarm1());
-        fragmentslist.add(new Swarm1());
+
+        mqtt_thread.start();
 
         /* viewpager2 adapter */
         FragmentStateAdapter adapter = new FragmentStateAdapter(MainActivity.this) {
@@ -55,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
 
         viewPager2.setAdapter(adapter);
 
+
         new TabLayoutMediator(tabLayout, viewPager2, (tab, position) -> {
             switch (position) {
                 case 0:
@@ -70,14 +79,19 @@ public class MainActivity extends AppCompatActivity {
             }
             //设置tab样式
         }).attach();//将tablayout与viewpager2绑定
+        //mqtt_client.mqtt_init();
 
 
     }
 
-//    @Override
-//    protected void onStart() {
-//        super.onStart();
-//        textView = fragmentslist.get(0).getView().findViewById(R.id.hello);
-//        textView.setText("hello");
-//    }
+    //接收消息
+    static Handler handler = new Handler(Looper.getMainLooper()) {
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            super.handleMessage(msg);
+            if (msg.what == 1) {
+                Log.d("TAG", "handleMessage: " + msg.obj);
+            }
+        }
+    };
 }

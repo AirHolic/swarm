@@ -1,22 +1,25 @@
 package com.neuro_sama.swarm;
 
-import android.content.Context;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link Swarm1#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class Swarm1 extends Fragment {
+public class Swarm1 extends Fragment implements mqtt_interface {
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -27,6 +30,8 @@ public class Swarm1 extends Fragment {
     private String mParam1;
     private String mParam2;
     private View view;
+    mqtt_client mqtt_client = new mqtt_client();
+    static TextView textView;
 
     public Swarm1() {
         // Required empty public constructor
@@ -59,22 +64,31 @@ public class Swarm1 extends Fragment {
         }
     }
 
-    //处理fragment的控件
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        view = inflater.inflate(R.layout.fragment_swarm1, container, false);
-//        TextView textView = view.findViewById(R.id.hello);
-//        textView.setText("hello");
-        return view;
+        return inflater.inflate(R.layout.fragment_swarm1, container, false);
     }
 
+    //只能在此处理fragment的控件
     @Override
-    public void onAttach(@NonNull Context context) {
-        super.onAttach(context);
-
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        textView = view.findViewById(R.id.hello);
     }
+
+    static Handler handler = new Handler(Looper.getMainLooper()) {
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            super.handleMessage(msg);
+            if (msg.what == 1) {
+                Log.d("TAG", "handleMessage: " + msg.obj);
+                textView.setText((String) msg.obj);
+            }
+
+        }
+    };
 
 
 }

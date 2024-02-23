@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">swarm</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
 
+    <!--字体图标-->
     <string name="warning">&#xe646;</string>
+
 </resources>
