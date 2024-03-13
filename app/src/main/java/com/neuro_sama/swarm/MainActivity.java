@@ -26,7 +26,7 @@ public class MainActivity extends AppCompatActivity {
     private TabLayout tabLayout;
 
     Swarm1 swarm1 = Swarm1.newInstance("", "");
-    Bundle bundle = new Bundle();
+    //Bundle bundle = new Bundle();
 
     mqtt_client mqtt_client = new mqtt_client();
     Thread mqtt_thread = new Thread(mqtt_client);
@@ -42,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
 
         fragmentslist = new ArrayList<>();
         fragmentslist.add(swarm1);
-        fragmentslist.add(new Swarm1());
+        fragmentslist.add(new Swarm2());
         fragmentslist.add(new Swarm1());
 
         mqtt_thread.start();
@@ -68,18 +68,18 @@ public class MainActivity extends AppCompatActivity {
             switch (position) {
                 case 0:
                     //tab.setCustomView(R.layout.iconfont_view);
-                    tab.setText("Tab 1");
+                    tab.setText("系统状态");
                     break;
                 case 1:
-                    tab.setText("Tab 2");
+                    tab.setText("设备指令");
                     break;
                 case 2:
-                    tab.setText("Tab 3");
+                    tab.setText("定时控制");
                     break;
             }
             //设置tab样式
         }).attach();//将tablayout与viewpager2绑定
-        //mqtt_client.mqtt_init();
+
 
 
     }

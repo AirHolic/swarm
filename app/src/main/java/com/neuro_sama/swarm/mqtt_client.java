@@ -3,6 +3,8 @@ package com.neuro_sama.swarm;
 import static com.hivemq.client.mqtt.MqttGlobalPublishFilter.ALL;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
+import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 
@@ -51,7 +53,10 @@ public class mqtt_client implements mqtt_interface, Runnable {
     public void run() {
         android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
         mqtt_init();
+        subscribe("Device/#");//订阅所有设备的消息
+
         Message message = new Message();
+
         /*
           Set a callback that is called when a message is received (using the async API style).
           Then disconnect the client after a message was received.
@@ -62,19 +67,56 @@ public class mqtt_client implements mqtt_interface, Runnable {
             String recv_msg = String.valueOf(UTF_8.decode(publish.getPayload().orElse(null)));
             //在ui线程中更新ui
             Log.d("mqtt", "Received message: " + topic + " -> " + recv_msg);
+
             message.obj = recv_msg;
-            message.what = 1;
+            topic_index(topic, message);
             Swarm1.handler.sendMessage(message);
         });
+    }
 
+//    Handler handler = new Handler(Looper.myLooper()) {
+//        @Override
+//        public void handleMessage(Message msg) {
+//            super.handleMessage(msg);
+//            if (msg.what == 1) {
+//                Swarm1.textView.setText((String) msg.obj);
+//            }
+//        }
+//    };
 
+    public void topic_index(MqttTopic topic, Message message) {
+        if (topic.toString().equals(Device_AHT10)) {
+            message.what = 1;
+        } else if (topic.toString().equals(Device_LoRa)) {
+            message.what = 2;
+        } else if (topic.toString().equals(Device_Port)) {
+            message.what = 3;
+        } else if (topic.toString().equals(Device_BH1750)) {
+            message.what = 4;
+        } else if (topic.toString().equals(Device_MQ135)) {
+            message.what = 5;
+        }
     }
 }
 
 interface mqtt_interface {
-    final String host = "bb9c9a0834f741db86abbba451ec955f.s1.eu.hivemq.cloud";
-    final String username = "esp8266";
-    final String password = "Esp8266test";
+
+    String host = "bb9c9a0834f741db86abbba451ec955f.s1.eu.hivemq.cloud";
+    String username = "esp8266";
+    String password = "Esp8266test";
+
+    String Control_AHT10 = "Control/Environment/AHT10";
+    String Control_LoRa = "Control/Meter/LoRa";
+    String Control_Port = "Control/Others/Port";
+    String Control_BH1750 = "Control/Environment/BH1750";
+    String Control_MQ135 = "Control/Environment/MQ135";
+
+    String Device_AHT10 = "Device/Environment/AHT10";
+    String Device_LoRa = "Device/Meter/LoRa";
+    String Device_Port = "Device/Others/Port";
+    String Device_BH1750 = "Device/Environment/BH1750";
+    String Device_MQ135 = "Device/Environment/MQ135";
+
     /*
      Building the client with ssl.
      */

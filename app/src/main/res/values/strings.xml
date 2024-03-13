@@ -3,5 +3,20 @@
 
     <!--字体图标-->
     <string name="warning">&#xe646;</string>
+    <string name="fan1">&#xe647;</string>
+    <string name="light1">&#xe64f;</string>
+    <string name="light2">&#xe64e;</string>
+    <string name="electric_meter">&#xe648;</string>
+    <string name="temperature">&#xe649;</string>
+    <string name="water_meter">&#xe64a;</string>
+    <string name="fan2">&#xe64b;</string>
+    <string name="smoke_alarm">&#xe64c;</string>
+    <string name="freezer">&#xe64d;</string>
+    <string name="temperature2">&#xe650;</string>
+    <string name="humidity">&#xe6bd;</string>
+    <string name="aqi">&#xe6d3;</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>

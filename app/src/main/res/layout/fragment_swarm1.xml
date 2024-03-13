@@ -10,73 +10,140 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        >
-
-        <EditText
-            android:id="@+id/topic"
+        android:orientation="horizontal">
+        <com.neuro_sama.swarm.IconFontView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="2"
-            android:ems="10"
-            android:inputType="none"
-            android:minHeight="48dp"
-            android:text="device_environment_aht10"
-            tools:ignore="LabelFor" />
-        <Button
-            android:id="@+id/sub_top"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="subscribe"
-            android:textAllCaps="false"/>
+            android:text="@string/temperature"
+            android:textSize="48sp"
+            android:layout_margin="10dp"
+            android:textColor="@color/black"
+            android:id="@+id/temperature"
+            />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/temperature_text"
+            android:text="温度"
+            android:gravity="center"
+            android:textSize="30sp"
+            android:textStyle="bold"
+            />
     </LinearLayout>
+
     <LinearLayout
-        android:id="@+id/pubmsg"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
-
-        <EditText
-            android:id="@+id/mqtt_msg"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_weight="2"
-            android:autofillHints=""
-            android:ems="10"
-            android:inputType="textPersonName"
-            android:labelFor="@+id/mqtt_msg"
-            android:text="mqtt_msg"/>
-
-        <Button
-            android:id="@+id/pub"
+        <com.neuro_sama.swarm.IconFontView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="publish"
-            android:textAllCaps="false"
-            tools:ignore="TouchTargetSizeCheck" />
+            android:text="@string/humidity"
+            android:textSize="48sp"
+            android:layout_margin="10dp"
+            android:textColor="@color/black"
+            />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/humidity_text"
+            android:text="湿度"
+            android:gravity="center"
+            android:textSize="30sp"
+            android:textStyle="bold"
+            />
     </LinearLayout>
 
-    <ScrollView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <LinearLayout
-            android:id="@+id/recv_msg"
-            android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <com.neuro_sama.swarm.IconFontView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:text="@string/light1"
+            android:textSize="48sp"
+            android:layout_margin="10dp"
+            android:textColor="@color/black"
+            />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/light_text"
+            android:text="亮度"
+            android:gravity="center"
+            android:textSize="30sp"
+            android:textStyle="bold"
+            />
+    </LinearLayout>
 
-            <TextView
-                android:id="@+id/hello"
-                android:layout_width="wrap_content"
-                android:layout_height="0dp"
-                android:layout_weight="3"
-                android:gravity="center"
-                android:scrollbars="vertical"
-                android:textAllCaps="false" />
-        </LinearLayout>
-    </ScrollView>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <com.neuro_sama.swarm.IconFontView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/aqi"
+            android:textSize="48sp"
+            android:layout_margin="10dp"
+            android:textColor="@color/black"
+            />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/aqi_text"
+            android:text="空气质量"
+            android:gravity="center"
+            android:textSize="30sp"
+            android:textStyle="bold"
+            />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <com.neuro_sama.swarm.IconFontView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/water_meter"
+            android:textSize="48sp"
+            android:layout_margin="10dp"
+            android:textColor="@color/black"
+            />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/water_text"
+            android:text="水表"
+            android:gravity="center"
+            android:textSize="30sp"
+            android:textStyle="bold"
+            />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <com.neuro_sama.swarm.IconFontView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/electric_meter"
+            android:textSize="48sp"
+            android:layout_margin="10dp"
+            android:textColor="@color/black"
+            />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/electric_text"
+            android:text="电量"
+            android:gravity="center"
+            android:textSize="30sp"
+            android:textStyle="bold"
+            />
+    </LinearLayout>
 
 </LinearLayout>

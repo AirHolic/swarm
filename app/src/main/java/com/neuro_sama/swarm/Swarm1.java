@@ -1,5 +1,6 @@
 package com.neuro_sama.swarm;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -19,7 +20,7 @@ import androidx.fragment.app.Fragment;
  * Use the {@link Swarm1#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class Swarm1 extends Fragment implements mqtt_interface {
+public class Swarm1 extends Fragment {
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -30,8 +31,9 @@ public class Swarm1 extends Fragment implements mqtt_interface {
     private String mParam1;
     private String mParam2;
     private View view;
-    mqtt_client mqtt_client = new mqtt_client();
-    static TextView textView;
+    @SuppressLint("StaticFieldLeak")
+    static TextView temperature_text, humidity_text,
+            light_text, aqi_text, water_text, electric_text;
 
     public Swarm1() {
         // Required empty public constructor
@@ -64,7 +66,6 @@ public class Swarm1 extends Fragment implements mqtt_interface {
         }
     }
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -75,20 +76,37 @@ public class Swarm1 extends Fragment implements mqtt_interface {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        textView = view.findViewById(R.id.hello);
+        temperature_text = view.findViewById(R.id.temperature_text);
     }
 
-    static Handler handler = new Handler(Looper.getMainLooper()) {
+    static Handler handler = new Handler(Looper.myLooper()) {
         @Override
         public void handleMessage(@NonNull Message msg) {
             super.handleMessage(msg);
-            if (msg.what == 1) {
-                Log.d("TAG", "handleMessage: " + msg.obj);
-                textView.setText((String) msg.obj);
+            switch (msg.what)
+            {
+                case 1:
+                    temperature_text.setText(msg.obj.toString());
+                    break;
+                case 2:
+                    humidity_text.setText(msg.obj.toString());
+                    break;
+                case 3:
+                    light_text.setText(msg.obj.toString());
+                    break;
+                case 4:
+                    aqi_text.setText(msg.obj.toString());
+                    break;
+                case 5:
+                    water_text.setText(msg.obj.toString());
+                    break;
+                case 6:
+                    electric_text.setText(msg.obj.toString());
+                    break;
+                default:
+                    Log.d("handler", "handleMessage: error");
             }
-
         }
     };
-
 
 }
