@@ -3,8 +3,6 @@ package com.neuro_sama.swarm;
 import static com.hivemq.client.mqtt.MqttGlobalPublishFilter.ALL;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-import android.os.Handler;
-import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 
@@ -55,7 +53,7 @@ public class mqtt_client implements mqtt_interface, Runnable {
         mqtt_init();
         subscribe("Device/#");//订阅所有设备的消息
 
-        Message message = new Message();
+
 
         /*
           Set a callback that is called when a message is received (using the async API style).
@@ -67,10 +65,10 @@ public class mqtt_client implements mqtt_interface, Runnable {
             String recv_msg = String.valueOf(UTF_8.decode(publish.getPayload().orElse(null)));
             //在ui线程中更新ui
             Log.d("mqtt", "Received message: " + topic + " -> " + recv_msg);
-
-            message.obj = recv_msg;
-            topic_index(topic, message);
+            Message message = new Message();
+            message_init(message, topic_index(topic), recv_msg);
             Swarm1.handler.sendMessage(message);
+
         });
     }
 
@@ -84,20 +82,27 @@ public class mqtt_client implements mqtt_interface, Runnable {
 //        }
 //    };
 
-    public void topic_index(MqttTopic topic, Message message) {
+    public int topic_index(MqttTopic topic) {
         if (topic.toString().equals(Device_AHT10)) {
-            message.what = 1;
+            return 1;
         } else if (topic.toString().equals(Device_LoRa)) {
-            message.what = 2;
+            return 2;
         } else if (topic.toString().equals(Device_Port)) {
-            message.what = 3;
+            return 3;
         } else if (topic.toString().equals(Device_BH1750)) {
-            message.what = 4;
+            return 4;
         } else if (topic.toString().equals(Device_MQ135)) {
-            message.what = 5;
+            return 5;
         }
+        return 0;
+    }
+    public void message_init(Message message, int what, String msg) {
+        message.obj = msg;
+        message.what = what;
     }
 }
+
+
 
 interface mqtt_interface {
 

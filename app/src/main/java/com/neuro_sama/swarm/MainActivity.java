@@ -21,7 +21,7 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    private List<Fragment> fragmentslist;
+    private List<Fragment> fragments_list;
     private ViewPager2 viewPager2;
     private TabLayout tabLayout;
 
@@ -40,10 +40,10 @@ public class MainActivity extends AppCompatActivity {
         viewPager2 = findViewById(R.id.viewPager2);
         tabLayout = findViewById(R.id.tabLayout);
 
-        fragmentslist = new ArrayList<>();
-        fragmentslist.add(swarm1);
-        fragmentslist.add(new Swarm2());
-        fragmentslist.add(new Swarm1());
+        fragments_list = new ArrayList<>();
+        fragments_list.add(swarm1);
+        fragments_list.add(new Swarm2());
+        fragments_list.add(new Swarm1());
 
         mqtt_thread.start();
 
@@ -51,13 +51,13 @@ public class MainActivity extends AppCompatActivity {
         FragmentStateAdapter adapter = new FragmentStateAdapter(MainActivity.this) {
             @Override
             public int getItemCount() {
-                return fragmentslist.size();
+                return fragments_list.size();
             }
 
             @NonNull
             @Override
             public Fragment createFragment(int position) {
-                return fragmentslist.get(position);
+                return fragments_list.get(position);
             }
         };
 

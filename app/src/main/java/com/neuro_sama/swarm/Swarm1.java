@@ -77,36 +77,49 @@ public class Swarm1 extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         temperature_text = view.findViewById(R.id.temperature_text);
+        humidity_text = view.findViewById(R.id.humidity_text);
+        light_text = view.findViewById(R.id.light_text);
+        aqi_text = view.findViewById(R.id.aqi_text);
+        water_text = view.findViewById(R.id.water_text);
+        electric_text = view.findViewById(R.id.electric_text);
     }
 
     static Handler handler = new Handler(Looper.myLooper()) {
+        @SuppressLint("SetTextI18n")
         @Override
         public void handleMessage(@NonNull Message msg) {
             super.handleMessage(msg);
+            String str = msg.obj.toString();
             switch (msg.what)
             {
                 case 1:
-                    temperature_text.setText(msg.obj.toString());
+                    String[] str1 = str.split(" ");
+                    temperature_text.setText(ui_unit(str1[0], "°C"));
+                    humidity_text.setText(ui_unit(str1[1], "%"));
                     break;
                 case 2:
-                    humidity_text.setText(msg.obj.toString());
+                    String[] str2 = str.split(" ");
+                    water_text.setText(ui_unit(str2[0], "L"));
+                    electric_text.setText(ui_unit(str2[1], "kWh"));
                     break;
                 case 3:
-                    light_text.setText(msg.obj.toString());
+                    Log.d("handler3", "handleMessage: " + str);
                     break;
                 case 4:
-                    aqi_text.setText(msg.obj.toString());
+                    light_text.setText(ui_unit(str, "lux"));
                     break;
                 case 5:
-                    water_text.setText(msg.obj.toString());
-                    break;
-                case 6:
-                    electric_text.setText(msg.obj.toString());
+                    aqi_text.setText(ui_unit(str, "ppm"));
                     break;
                 default:
                     Log.d("handler", "handleMessage: error");
             }
         }
     };
+
+    public static String ui_unit(String str, String unit)
+    {
+        return str + " " + unit;
+    }
 
 }
