@@ -4,13 +4,99 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".Swarm2"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:layout_gravity="center"
+    android:gravity="center">
 
-    <!-- TODO: Update blank fragment layout -->
-    <com.neuro_sama.swarm.IconFontView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/warning"
-        android:textSize="100dp"/>
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:id="@+id/light_switch"
+        android:clickable="true"
+        android:focusable="true"
+        >
+
+        <com.neuro_sama.swarm.IconFontView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_margin="10dp"
+            android:gravity="center"
+            android:text="@string/switch1"
+            android:textColor="@color/purple_500"
+            android:textSize="66sp"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="灯光开关"
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:id="@+id/light_regulator"
+        android:clickable="true">
+
+        <com.neuro_sama.swarm.IconFontView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/light2"
+            android:layout_gravity="center"
+            android:layout_margin="10dp"
+            android:gravity="center"
+            android:textColor="@color/purple_500"
+            android:textSize="66sp"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="亮度调节"
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:id="@+id/other_switch"
+        android:clickable="true">
+
+        <com.neuro_sama.swarm.IconFontView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/switch2"
+            android:layout_gravity="center"
+            android:layout_margin="10dp"
+            android:gravity="center"
+            android:textColor="@color/purple_500"
+            android:textSize="66sp"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="其他开关"
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            />
+    </LinearLayout>
 
 </LinearLayout>

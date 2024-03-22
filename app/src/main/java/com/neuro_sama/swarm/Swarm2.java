@@ -1,12 +1,20 @@
 package com.neuro_sama.swarm;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import android.os.Message;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.LinearLayout;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -23,6 +31,7 @@ public class Swarm2 extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+    static LinearLayout light_switch, light_regulator, other_switch;
 
     public Swarm2() {
         // Required empty public constructor
@@ -61,4 +70,55 @@ public class Swarm2 extends Fragment {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_swarm2, container, false);
     }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        light_switch = view.findViewById(R.id.light_switch);
+        light_regulator = view.findViewById(R.id.light_regulator);
+        other_switch = view.findViewById(R.id.other_switch);
+
+        light_switch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+            //
+                String[] light_switches = {"light1", "light2", "light3", "light4", "light5", "light6", "light7"};
+                boolean[] checked = {false, false, false, false, false, false, false};
+                AlertDialog.Builder builder = new AlertDialog.Builder(getContext())
+                        .setMultiChoiceItems(light_switches, null, (dialog, which, isChecked) -> {
+                            checked[which] = isChecked;
+                        })
+                        .setPositiveButton("确定", (dialog, which) -> {
+                            for (int i = 0; i < checked.length; i++)
+                            {
+                                Message msg = new Message();
+                                msg.what=3;
+                                msg.obj =light_switches[i]+" "+checked[i];
+                                mqtt_client.handler.sendMessage(msg);
+                            }
+                        })
+                        .setNegativeButton("取消", (dialog, which) -> {
+                            // do something
+                        })
+                        .setTitle("灯光开关");
+                builder.create().show();
+            }
+        });
+
+        light_regulator.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // do something
+            }
+        });
+
+        other_switch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // do something
+            }
+        });
+    }
+
+
 }

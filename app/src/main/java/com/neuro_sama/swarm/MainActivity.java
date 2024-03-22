@@ -6,6 +6,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -24,6 +25,7 @@ public class MainActivity extends AppCompatActivity {
     private List<Fragment> fragments_list;
     private ViewPager2 viewPager2;
     private TabLayout tabLayout;
+    static Toast toast;
 
     Swarm1 swarm1 = Swarm1.newInstance("", "");
     //Bundle bundle = new Bundle();
@@ -46,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
         fragments_list.add(new Swarm1());
 
         mqtt_thread.start();
+        toast = Toast.makeText(MainActivity.this, "mqtt_thread started", Toast.LENGTH_SHORT);
 
         /* viewpager2 adapter */
         FragmentStateAdapter adapter = new FragmentStateAdapter(MainActivity.this) {
@@ -63,7 +66,6 @@ public class MainActivity extends AppCompatActivity {
 
         viewPager2.setAdapter(adapter);
 
-
         new TabLayoutMediator(tabLayout, viewPager2, (tab, position) -> {
             switch (position) {
                 case 0:
@@ -71,10 +73,10 @@ public class MainActivity extends AppCompatActivity {
                     tab.setText("系统状态");
                     break;
                 case 1:
-                    tab.setText("设备指令");
+                    tab.setText("设备控制");
                     break;
                 case 2:
-                    tab.setText("定时控制");
+                    tab.setText("定时任务");
                     break;
             }
             //设置tab样式
@@ -90,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
         public void handleMessage(@NonNull Message msg) {
             super.handleMessage(msg);
             if (msg.what == 1) {
-                Log.d("TAG", "handleMessage: " + msg.obj);
+                toast.show();
             }
         }
     };

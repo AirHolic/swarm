@@ -17,7 +17,7 @@
             android:text="@string/temperature"
             android:textSize="48sp"
             android:layout_margin="10dp"
-            android:textColor="@color/black"
+            android:textColor="@color/purple_700"
             android:id="@+id/temperature"
             />
         <TextView
@@ -41,7 +41,7 @@
             android:text="@string/humidity"
             android:textSize="48sp"
             android:layout_margin="10dp"
-            android:textColor="@color/black"
+            android:textColor="@color/purple_700"
             />
         <TextView
             android:layout_width="match_parent"
@@ -64,7 +64,7 @@
             android:text="@string/light1"
             android:textSize="48sp"
             android:layout_margin="10dp"
-            android:textColor="@color/black"
+            android:textColor="@color/purple_700"
             />
         <TextView
             android:layout_width="match_parent"
@@ -87,7 +87,7 @@
             android:text="@string/aqi"
             android:textSize="48sp"
             android:layout_margin="10dp"
-            android:textColor="@color/black"
+            android:textColor="@color/purple_700"
             />
         <TextView
             android:layout_width="match_parent"
@@ -110,7 +110,7 @@
             android:text="@string/water_meter"
             android:textSize="48sp"
             android:layout_margin="10dp"
-            android:textColor="@color/black"
+            android:textColor="@color/purple_700"
             />
         <TextView
             android:layout_width="match_parent"
@@ -133,7 +133,7 @@
             android:text="@string/electric_meter"
             android:textSize="48sp"
             android:layout_margin="10dp"
-            android:textColor="@color/black"
+            android:textColor="@color/purple_700"
             />
         <TextView
             android:layout_width="match_parent"

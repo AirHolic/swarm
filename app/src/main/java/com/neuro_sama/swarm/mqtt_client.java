@@ -3,6 +3,8 @@ package com.neuro_sama.swarm;
 import static com.hivemq.client.mqtt.MqttGlobalPublishFilter.ALL;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
+import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 
@@ -24,9 +26,10 @@ public class mqtt_client implements mqtt_interface, Runnable {
                 .applySimpleAuth()
                 .keepAlive(60)
                 .send();
+        Log.d("mqtt", "mqtt_init: connected");
     }
 
-    public void pubmsg(String topic, String msg) {
+    public static void pubmsg(String topic, String msg) {
         /*
           Publish "Hello" to the topic "my/test/topic" with qos = 0.
          */
@@ -45,6 +48,7 @@ public class mqtt_client implements mqtt_interface, Runnable {
                 .topicFilter(topic)
                 .qos(MqttQos.AT_MOST_ONCE)
                 .send();
+        Log.d("mqtt", "subscribe: " + topic);
     }
 
     @Override
@@ -52,13 +56,14 @@ public class mqtt_client implements mqtt_interface, Runnable {
         android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
         mqtt_init();
         subscribe("Device/#");//订阅所有设备的消息
-
-
-
+        Message msg = new Message();
+        msg.what=1;
+        MainActivity.handler.sendMessage(msg);
         /*
           Set a callback that is called when a message is received (using the async API style).
           Then disconnect the client after a message was received.
          */
+
         client.toAsync().publishes(ALL, publish -> {
             //System.out.println("Received message: " + publish.getTopic() + " -> " + UTF_8.decode(publish.getPayload().orElse(null)));
             MqttTopic topic = publish.getTopic();
@@ -72,15 +77,16 @@ public class mqtt_client implements mqtt_interface, Runnable {
         });
     }
 
-//    Handler handler = new Handler(Looper.myLooper()) {
-//        @Override
-//        public void handleMessage(Message msg) {
-//            super.handleMessage(msg);
-//            if (msg.what == 1) {
-//                Swarm1.textView.setText((String) msg.obj);
-//            }
-//        }
-//    };
+   static Handler handler = new Handler(Looper.myLooper()) {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+
+                Log.d("mqtt", "recv_msg: " + msg.obj);
+                mqtt_client.pubmsg(get_topic(msg.what), msg.obj.toString());
+
+        }
+    };
 
     public int topic_index(MqttTopic topic) {
         if (topic.toString().equals(Device_AHT10)) {
@@ -99,6 +105,23 @@ public class mqtt_client implements mqtt_interface, Runnable {
     public void message_init(Message message, int what, String msg) {
         message.obj = msg;
         message.what = what;
+    }
+
+    public static String get_topic(int index) {
+        switch (index) {
+            case 1:
+                return Control_AHT10;
+            case 2:
+                return Control_LoRa;
+            case 3:
+                return Control_Port;
+            case 4:
+                return Control_BH1750;
+            case 5:
+                return Control_MQ135;
+            default:
+                return "";
+        }
     }
 }
 
@@ -125,7 +148,7 @@ interface mqtt_interface {
     /*
      Building the client with ssl.
      */
-    final Mqtt5BlockingClient client = MqttClient.builder()
+     Mqtt5BlockingClient client = MqttClient.builder()
             .useMqttVersion5()
             .serverHost(host)
             .serverPort(8884)
