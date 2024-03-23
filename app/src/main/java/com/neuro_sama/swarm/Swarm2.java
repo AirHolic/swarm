@@ -1,7 +1,6 @@
 package com.neuro_sama.swarm;
 
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -13,8 +12,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
 import android.widget.LinearLayout;
+import android.widget.SeekBar;
+import android.widget.TextView;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -32,6 +32,8 @@ public class Swarm2 extends Fragment {
     private String mParam1;
     private String mParam2;
     static LinearLayout light_switch, light_regulator, other_switch;
+    static SeekBar light_rank;
+    static TextView light_rank_value;
 
     public Swarm2() {
         // Required empty public constructor
@@ -78,6 +80,7 @@ public class Swarm2 extends Fragment {
         light_regulator = view.findViewById(R.id.light_regulator);
         other_switch = view.findViewById(R.id.other_switch);
 
+
         light_switch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -93,7 +96,7 @@ public class Swarm2 extends Fragment {
                             {
                                 Message msg = new Message();
                                 msg.what=3;
-                                msg.obj =light_switches[i]+" "+checked[i];
+                                msg.obj =i +" "+checked[i];
                                 mqtt_client.handler.sendMessage(msg);
                             }
                         })
@@ -108,14 +111,66 @@ public class Swarm2 extends Fragment {
         light_regulator.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // do something
+                LayoutInflater using_dialog_layout_xml = LayoutInflater.from(getContext());
+                View light_regulator_view = using_dialog_layout_xml.inflate(R.layout.light_regulator, null);
+                light_rank = light_regulator_view.findViewById(R.id.seekBar2);
+                light_rank_value = light_regulator_view.findViewById(R.id.light_rank_value);
+                AlertDialog.Builder builder = new AlertDialog.Builder(getContext())
+                        .setView(light_regulator_view)
+                        .setPositiveButton("确定", (dialog, which) -> {
+                            Log.d("light_regulator", light_rank_value.getText().toString());
+                            Message msg = new Message();
+                            msg.what=4;
+                            msg.obj=light_rank_value.getText().toString();
+                            mqtt_client.handler.sendMessage(msg);
+                        })
+                        .setNegativeButton("取消", (dialog, which) -> {
+                            // do something
+                        })
+                        .setTitle("灯光调节");
+                light_rank.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                    @Override
+                    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                        light_rank_value.setText(String.valueOf(progress));
+                    }
+
+                    @Override
+                    public void onStartTrackingTouch(SeekBar seekBar) {
+
+                    }
+
+                    @Override
+                    public void onStopTrackingTouch(SeekBar seekBar) {
+                        // do something
+                    }
+                });
+                builder.create().show();
             }
         });
 
         other_switch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // do something
+                String[] other_switches = {"switch8", "switch9", "switch10", "switch11", "switch12", "switch13", "switch14"};
+                boolean[] checked = {false, false, false, false, false, false, false};
+                AlertDialog.Builder builder = new AlertDialog.Builder(getContext())
+                        .setMultiChoiceItems(other_switches, null, (dialog, which, isChecked) -> {
+                            checked[which] = isChecked;
+                        })
+                        .setPositiveButton("确定", (dialog, which) -> {
+                            for (int i = 0; i < checked.length; i++)
+                            {
+                                Message msg = new Message();
+                                msg.what=3;
+                                msg.obj = i+7 +" "+checked[i];
+                                mqtt_client.handler.sendMessage(msg);
+                            }
+                        })
+                        .setNegativeButton("取消", (dialog, which) -> {
+                            // do something
+                        })
+                        .setTitle("其他开关");
+                builder.create().show();
             }
         });
     }
