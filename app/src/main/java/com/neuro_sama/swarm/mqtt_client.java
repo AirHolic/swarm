@@ -72,8 +72,12 @@ public class mqtt_client implements mqtt_interface, Runnable {
             Log.d("mqtt", "Received message: " + topic + " -> " + recv_msg);
             Message message = new Message();
             message_init(message, topic_index(topic), recv_msg);
-            Swarm1.handler.sendMessage(message);
-
+            if(topic_index(topic)!=3 && topic_index(topic)!=6)
+                Swarm1.handler.sendMessage(message);
+            else if(topic_index(topic)==3)
+                Swarm2.handler.sendMessage(message);
+            else if(topic_index(topic)==6)
+                Swarm3.handler.sendMessage(message);
         });
     }
 
@@ -83,7 +87,7 @@ public class mqtt_client implements mqtt_interface, Runnable {
             super.handleMessage(msg);
 
                 Log.d("mqtt", "recv_msg: " + msg.obj);
-                mqtt_client.pubmsg(get_topic(msg.what), msg.obj.toString());
+                //mqtt_client.pubmsg(get_topic(msg.what), msg.obj.toString());
 
         }
     };
@@ -99,6 +103,8 @@ public class mqtt_client implements mqtt_interface, Runnable {
             return 4;
         } else if (topic.toString().equals(Device_MQ135)) {
             return 5;
+        } else if (topic.toString().equals(Device_Timer)) {
+            return 6;
         }
         return 0;
     }
@@ -119,6 +125,8 @@ public class mqtt_client implements mqtt_interface, Runnable {
                 return Control_BH1750;
             case 5:
                 return Control_MQ135;
+            case 6:
+                return Control_Timer;
             default:
                 return "";
         }
@@ -138,12 +146,14 @@ interface mqtt_interface {
     String Control_Port = "Control/Others/Port";
     String Control_BH1750 = "Control/Environment/BH1750";
     String Control_MQ135 = "Control/Environment/MQ135";
+    String Control_Timer = "Control/others/Timer";
 
     String Device_AHT10 = "Device/Environment/AHT10";
     String Device_LoRa = "Device/Meter/LoRa";
     String Device_Port = "Device/Others/Port";
     String Device_BH1750 = "Device/Environment/BH1750";
     String Device_MQ135 = "Device/Environment/MQ135";
+    String Device_Timer = "Device/others/Timer";
 
     /*
      Building the client with ssl.

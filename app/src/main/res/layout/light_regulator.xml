@@ -1,8 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
+
+    <Switch
+        android:id="@+id/pwm_light_switch"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="灯光开关"
+        tools:ignore="UseSwitchCompatOrMaterialXml" />
+
+    <Switch
+        android:id="@+id/pwm_light_auto_mode"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="自动调光模式"
+        tools:ignore="UseSwitchCompatOrMaterialXml" />
 
     <SeekBar
         android:id="@+id/seekBar2"
@@ -11,7 +28,7 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:max="24"
-        android:progress="3" />
+        android:progress="0" />
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -25,7 +42,7 @@
             android:id="@+id/light_rank_value"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="3"
+            android:text="0"
             />
     </LinearLayout>
 

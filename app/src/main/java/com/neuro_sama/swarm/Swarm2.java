@@ -1,19 +1,26 @@
 package com.neuro_sama.swarm;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
+import android.widget.Switch;
 import android.widget.TextView;
 
 /**
@@ -34,6 +41,7 @@ public class Swarm2 extends Fragment {
     static LinearLayout light_switch, light_regulator, other_switch;
     static SeekBar light_rank;
     static TextView light_rank_value;
+    static Switch pwm_light_switch,pwm_light_auto_mode;
 
     public Swarm2() {
         // Required empty public constructor
@@ -84,21 +92,38 @@ public class Swarm2 extends Fragment {
         light_switch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-            //
-                String[] light_switches = {"light1", "light2", "light3", "light4", "light5", "light6", "light7"};
-                boolean[] checked = {false, false, false, false, false, false, false};
+                SharedPreferences lgsp1 = getContext().getSharedPreferences("light_switch", Context.MODE_PRIVATE);
+                int arg1 = lgsp1.getInt("light_switch", 0x00);
+
+                String[] light_switches = {"light1", "light2", "light3", "light4", "light5", "light6", "light7", "light8"};
+                boolean[] checked = {false, false, false, false, false, false, false, false};
+
+                for (int i = 0; i < 8; i++) {
+                    if ((arg1 & (1 << i)) != 0)
+                        checked[i] = true;
+                }
+
                 AlertDialog.Builder builder = new AlertDialog.Builder(getContext())
-                        .setMultiChoiceItems(light_switches, null, (dialog, which, isChecked) -> {
+                        .setMultiChoiceItems(light_switches, checked, (dialog, which, isChecked) -> {
                             checked[which] = isChecked;
                         })
                         .setPositiveButton("确定", (dialog, which) -> {
+                            Message msg = new Message();
+                            msg.what=3;//Device_Port
+                            msg.obj=0;//Device_Type
+                            msg.arg1=0;//Device_Port
                             for (int i = 0; i < checked.length; i++)
                             {
-                                Message msg = new Message();
-                                msg.what=3;
-                                msg.obj =i +" "+checked[i];
-                                mqtt_client.handler.sendMessage(msg);
+                                if(checked[i])
+                                    msg.arg1 |= (1 << i);
+                                msg.obj = msg.arg1;
                             }
+                            Log.d("light_switch", String.valueOf(msg.obj));
+                            mqtt_client.handler.sendMessage(msg);
+                            SharedPreferences lgsp = getContext().getSharedPreferences("light_switch", Context.MODE_PRIVATE);
+                            SharedPreferences.Editor editor = lgsp.edit();
+                            editor.putInt("light_switch", msg.arg1);
+                            editor.apply();
                         })
                         .setNegativeButton("取消", (dialog, which) -> {
                             // do something
@@ -115,13 +140,25 @@ public class Swarm2 extends Fragment {
                 View light_regulator_view = using_dialog_layout_xml.inflate(R.layout.light_regulator, null);
                 light_rank = light_regulator_view.findViewById(R.id.seekBar2);
                 light_rank_value = light_regulator_view.findViewById(R.id.light_rank_value);
+                pwm_light_switch = light_regulator_view.findViewById(R.id.pwm_light_switch);
+                pwm_light_auto_mode = light_regulator_view.findViewById(R.id.pwm_light_auto_mode);
+                pwm_light_auto_mode.setEnabled(false);
                 AlertDialog.Builder builder = new AlertDialog.Builder(getContext())
                         .setView(light_regulator_view)
                         .setPositiveButton("确定", (dialog, which) -> {
                             Log.d("light_regulator", light_rank_value.getText().toString());
                             Message msg = new Message();
                             msg.what=4;
-                            msg.obj=light_rank_value.getText().toString();
+                            if(pwm_light_switch.isChecked()) {
+                                if(pwm_light_auto_mode.isChecked()) {
+                                    msg.obj="AUTO";
+                                }
+                                else {
+                                    msg.obj = light_rank_value.getText().toString();
+                                }
+                            } else {
+                                msg.obj="OFF";
+                            }
                             mqtt_client.handler.sendMessage(msg);
                         })
                         .setNegativeButton("取消", (dialog, which) -> {
@@ -132,6 +169,9 @@ public class Swarm2 extends Fragment {
                     @Override
                     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                         light_rank_value.setText(String.valueOf(progress));
+                        if(progress>0) {
+                            pwm_light_switch.setChecked(true);
+                        }
                     }
 
                     @Override
@@ -144,6 +184,27 @@ public class Swarm2 extends Fragment {
                         // do something
                     }
                 });
+                pwm_light_switch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                    if(isChecked == false) {
+                        pwm_light_auto_mode.setChecked(false);
+                        pwm_light_auto_mode.setEnabled(false);
+                        light_rank.setProgress(0);
+                        light_rank_value.setText("0");
+                    }
+                    else {
+                        pwm_light_auto_mode.setEnabled(true);
+                        light_rank.setProgress(24);
+                        light_rank_value.setText("24");
+                    }
+                });
+                pwm_light_auto_mode.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                    if(isChecked == true) {
+                        light_rank.setEnabled(false);
+                    }
+                    else {
+                        light_rank.setEnabled(true);
+                    }
+                });
                 builder.create().show();
             }
         });
@@ -151,7 +212,7 @@ public class Swarm2 extends Fragment {
         other_switch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String[] other_switches = {"switch8", "switch9", "switch10", "switch11", "switch12", "switch13", "switch14"};
+                String[] other_switches = {"switch9", "switch10", "switch11", "switch12", "switch13", "switch14", "switch15", "switch16"};
                 boolean[] checked = {false, false, false, false, false, false, false};
                 AlertDialog.Builder builder = new AlertDialog.Builder(getContext())
                         .setMultiChoiceItems(other_switches, null, (dialog, which, isChecked) -> {
@@ -162,7 +223,8 @@ public class Swarm2 extends Fragment {
                             {
                                 Message msg = new Message();
                                 msg.what=3;
-                                msg.obj = i+7 +" "+checked[i];
+                                msg.obj = i+8 +" "+checked[i];
+
                                 mqtt_client.handler.sendMessage(msg);
                             }
                         })
@@ -175,5 +237,27 @@ public class Swarm2 extends Fragment {
         });
     }
 
+    static Handler handler = new Handler(Looper.myLooper()) {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what) {
+                case 1:
+                    Log.d("mqtt", "mqtt connected");
+                    break;
+                case 2:
+                    Log.d("mqtt", "mqtt disconnected");
+                    break;
+                case 3:
+                    Log.d("mqtt", "mqtt message received");
+                    break;
+                case 4:
+                    Log.d("mqtt", "mqtt message sent");
+                    break;
+                default:
+                    break;
+            }
+        }
+    };
 
 }

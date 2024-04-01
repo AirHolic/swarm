@@ -27,7 +27,7 @@ public class MainActivity extends AppCompatActivity {
     private TabLayout tabLayout;
     static Toast toast;
 
-    Swarm1 swarm1 = Swarm1.newInstance("", "");
+    //Swarm1 swarm1 = Swarm1.newInstance("", "");
     //Bundle bundle = new Bundle();
 
     mqtt_client mqtt_client = new mqtt_client();
@@ -39,16 +39,19 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        mqtt_thread.start();
+        toast = Toast.makeText(MainActivity.this, "mqtt_thread started", Toast.LENGTH_SHORT);
+
         viewPager2 = findViewById(R.id.viewPager2);
         tabLayout = findViewById(R.id.tabLayout);
 
         fragments_list = new ArrayList<>();
-        fragments_list.add(swarm1);
-        fragments_list.add(new Swarm2());
         fragments_list.add(new Swarm1());
+        fragments_list.add(new Swarm2());
+        fragments_list.add(new Swarm3());
 
-        mqtt_thread.start();
-        toast = Toast.makeText(MainActivity.this, "mqtt_thread started", Toast.LENGTH_SHORT);
+
+
 
         /* viewpager2 adapter */
         FragmentStateAdapter adapter = new FragmentStateAdapter(MainActivity.this) {
