@@ -7,6 +7,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.hivemq.client.mqtt.MqttClient;
 import com.hivemq.client.mqtt.datatypes.MqttQos;
@@ -59,6 +60,7 @@ public class mqtt_client implements mqtt_interface, Runnable {
         Message msg = new Message();
         msg.what=1;
         MainActivity.handler.sendMessage(msg);
+
         /*
           Set a callback that is called when a message is received (using the async API style).
           Then disconnect the client after a message was received.
@@ -79,6 +81,7 @@ public class mqtt_client implements mqtt_interface, Runnable {
             else if(topic_index(topic)==6)
                 Swarm3.handler.sendMessage(message);
         });
+
     }
 
    static Handler handler = new Handler(Looper.myLooper()) {
@@ -86,8 +89,10 @@ public class mqtt_client implements mqtt_interface, Runnable {
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
 
-                Log.d("mqtt", "recv_msg: " + msg.obj);
-                //mqtt_client.pubmsg(get_topic(msg.what), msg.obj.toString());
+            Log.d("mqtt", "recv_msg: " + msg.obj);
+            String topic = get_topic(msg.what);
+            String pub_msg = (String) msg.obj;
+            pubmsg(topic, pub_msg);
 
         }
     };
@@ -146,14 +151,14 @@ interface mqtt_interface {
     String Control_Port = "Control/Others/Port";
     String Control_BH1750 = "Control/Environment/BH1750";
     String Control_MQ135 = "Control/Environment/MQ135";
-    String Control_Timer = "Control/others/Timer";
+    String Control_Timer = "Control/Others/Timer";
 
     String Device_AHT10 = "Device/Environment/AHT10";
     String Device_LoRa = "Device/Meter/LoRa";
     String Device_Port = "Device/Others/Port";
     String Device_BH1750 = "Device/Environment/BH1750";
     String Device_MQ135 = "Device/Environment/MQ135";
-    String Device_Timer = "Device/others/Timer";
+    String Device_Timer = "Device/Others/Timer";
 
     /*
      Building the client with ssl.

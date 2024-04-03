@@ -5,11 +5,6 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -22,12 +17,15 @@ import android.widget.CheckedTextView;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Random;
 
 /**
@@ -48,6 +46,8 @@ public class Swarm3 extends Fragment {
     static LayoutInflater item_layout;
     @SuppressLint("StaticFieldLeak")
     static Button desk_del;
+    @SuppressLint("StaticFieldLeak")
+    static Context context;
 
 
     // TODO: Rename and change types of parameters
@@ -99,7 +99,7 @@ public class Swarm3 extends Fragment {
 
         LinearLayout swarm3_scroll_layout = view.findViewById(R.id.swarm3_scroll_layout);
         Button swarm3_add_task = view.findViewById(R.id.swarm3_add_task);
-
+        context = getContext();
         swarm3_scroll_layout.removeAllViews();
 
         List<String> task_list;
@@ -188,6 +188,26 @@ public class Swarm3 extends Fragment {
                         String task_time_hour = add_task_time_hour.getText().toString();
                         String task_time_minute = add_task_time_minute.getText().toString();
                         String task_time_second = add_task_time_second.getText().toString();
+
+                        if(task_time_hour.equals("") || task_time_minute.equals("") ||
+                                task_time_second.equals("")){
+                            Toast.makeText(getContext(), "请输入完整的时间", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        else if(Integer.parseInt(task_time_hour) > 23 || Integer.parseInt(task_time_minute) > 59
+                                || Integer.parseInt(task_time_second) > 59 || Integer.parseInt(task_time_hour) < 0
+                                || Integer.parseInt(task_time_minute) < 0 || Integer.parseInt(task_time_second) < 0){
+                            Toast.makeText(getContext(), "请输入正确的时间", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
+                        if(Integer.parseInt(task_time_hour) < 10 && Integer.parseInt(task_time_hour) != 0)
+                            task_time_hour = "0" + task_time_hour;
+                        if(Integer.parseInt(task_time_minute) < 10 && Integer.parseInt(task_time_minute) != 0)
+                            task_time_minute = "0" + task_time_minute;
+                        if(Integer.parseInt(task_time_second) < 10 && Integer.parseInt(task_time_second) != 0)
+                            task_time_second = "0" + task_time_second;
+
                         item_layout =  LayoutInflater.from(getContext());
                         item_view = item_layout.inflate(R.layout.task_item, null);
                         desk_time_text = item_view.findViewById(R.id.desk_time_text);
@@ -195,58 +215,59 @@ public class Swarm3 extends Fragment {
                         desk_port_text = item_view.findViewById(R.id.desk_port_text);
                         desk_del = item_view.findViewById(R.id.desk_del);
 
-                        if(!task_time_hour.equals("") && !task_time_minute.equals("") && !task_time_second.equals("")) {
-                            Log.d("Task", "Task Name: " + task_name + " Time: " +
-                                    task_time_hour + ":" + task_time_minute + ":" + task_time_second);
+                        Log.d("Task", "Task Name: " + task_name + " Time: " +
+                                task_time_hour + ":" + task_time_minute + ":" + task_time_second);
 
-                            Message msg = new Message();
-                            msg.what = 6;//Device_Timer
-                            msg.obj = 0;//msg
-                            msg.arg1 = 0;//port
+                        Message msg = new Message();
+                        msg.what = 6;//Device_Timer
+                        msg.obj = 0;//msg
+                        msg.arg1 = 0;//port
 
-                            for (int i = 0; i < add_task_ports.length; i++) {
-                                checked[i] = add_task_ports[i].isChecked();
-                                if (checked[i]) {
-                                    Log.d("Task", "Port " + i + " is checked");
-                                    desk_port_text.setText(desk_port_text.getText() + " " + i);
-                                    msg.arg1 |= (1 << i);
-                                }
+                        for (int i = 0; i < add_task_ports.length; i++) {
+                            checked[i] = add_task_ports[i].isChecked();
+                            if (checked[i]) {
+                                Log.d("Task", "Port " + i + " is checked");
+                                desk_port_text.setText(desk_port_text.getText() + " " + i);
+                                msg.arg1 |= (1 << i);
                             }
+                        }
+                        msg.arg1 = 255 - msg.arg1;
+                        msg.obj = "AT " + task_name + " " + task_time_hour + task_time_minute + task_time_second + " " + msg.arg1;
+                        mqtt_client.handler.sendMessage(msg);
+                        // Save the task
+                        desk_name_text.setText(task_name);
+                        desk_time_text.setText(task_time_hour + ":" + task_time_minute + ":" + task_time_second);
+                        String finalTask_time_hour = task_time_hour;
+                        String finalTask_time_minute = task_time_minute;
+                        String finalTask_time_second = task_time_second;
+                        desk_del.setOnClickListener(v1 -> {
+                            Message message = new Message();
+                            message.what = 6;//删除任务
+                            message.obj = "DT" + " " + task_name;
+                            mqtt_client.handler.sendMessage(message);
 
-                            msg.obj = "AT " + task_name + " " + task_time_hour + task_time_minute + task_time_second + " " + msg.arg1;
-                            mqtt_client.handler.sendMessage(msg);
-                            // Save the task
-                            desk_name_text.setText(task_name);
-                            desk_time_text.setText(task_time_hour + ":" + task_time_minute + ":" + task_time_second);
-                            desk_del.setOnClickListener(v1 -> {
-                                Message message = new Message();
-                                message.what = 6;//删除任务
-                                message.obj = "DT" + " " + task_name;
-                                mqtt_client.handler.sendMessage(message);
-
-                                finalTask_list.remove(task_name);
-                                finalTime_list.remove(task_time_hour + ":" + task_time_minute + ":" + task_time_second);
-                                finalPort_list.remove(desk_port_text.getText().toString());
-                                SharedPreferences.Editor task_list_editor = task_list_sp.edit();
-                                task_list_editor.putStringSet("id_list", new HashSet<>(finalTask_list));
-                                task_list_editor.putStringSet("time_list", new HashSet<>(finalTime_list));
-                                task_list_editor.putStringSet("port_list", new HashSet<>(finalPort_list));
-                                task_list_editor.apply();
-                                SharedPreferences.Editor editor1 = task_list_sp.edit();
-                                editor1.apply();
-                                onViewCreated(view, savedInstanceState);
-                            });
-                            swarm3_scroll_layout.addView(item_view);
-                            // Set the task item
-                            finalTask_list.add(task_name);
-                            finalTime_list.add(task_time_hour + ":" + task_time_minute + ":" + task_time_second);
-                            finalPort_list.add(desk_port_text.getText().toString());
+                            finalTask_list.remove(task_name);
+                            finalTime_list.remove(finalTask_time_hour + ":" + finalTask_time_minute + ":" + finalTask_time_second);
+                            finalPort_list.remove(desk_port_text.getText().toString());
                             SharedPreferences.Editor task_list_editor = task_list_sp.edit();
                             task_list_editor.putStringSet("id_list", new HashSet<>(finalTask_list));
                             task_list_editor.putStringSet("time_list", new HashSet<>(finalTime_list));
                             task_list_editor.putStringSet("port_list", new HashSet<>(finalPort_list));
                             task_list_editor.apply();
-                        }
+                            SharedPreferences.Editor editor1 = task_list_sp.edit();
+                            editor1.apply();
+                            onViewCreated(view, savedInstanceState);
+                        });
+                        swarm3_scroll_layout.addView(item_view);
+                        // Set the task item
+                        finalTask_list.add(task_name);
+                        finalTime_list.add(task_time_hour + ":" + task_time_minute + ":" + task_time_second);
+                        finalPort_list.add(desk_port_text.getText().toString());
+                        SharedPreferences.Editor task_list_editor = task_list_sp.edit();
+                        task_list_editor.putStringSet("id_list", new HashSet<>(finalTask_list));
+                        task_list_editor.putStringSet("time_list", new HashSet<>(finalTime_list));
+                        task_list_editor.putStringSet("port_list", new HashSet<>(finalPort_list));
+                        task_list_editor.apply();
                     })
                     .setNegativeButton("取消", (dialog, which) -> {
 
@@ -269,6 +290,9 @@ public class Swarm3 extends Fragment {
         @Override
         public void handleMessage(@NonNull Message msg) {
             super.handleMessage(msg);
+            String message = msg.obj.toString();
+            Log.d("MQTT", "Message: " + message);
+            Toast.makeText(MainActivity.context, message, Toast.LENGTH_SHORT).show();
         }
     };
 

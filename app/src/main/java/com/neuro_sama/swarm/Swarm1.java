@@ -102,9 +102,6 @@ public class Swarm1 extends Fragment {
                     water_text.setText(ui_unit(str2[0], "L"));
                     electric_text.setText(ui_unit(str2[1], "kWh"));
                     break;
-                case 3:
-                    Log.d("handler3", "handleMessage: " + str);
-                    break;
                 case 4:
                     light_text.setText(ui_unit(str, "lux"));
                     break;

@@ -74,7 +74,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:id="@+id/other_switch"
+        android:id="@+id/port_status"
         android:clickable="true">
 
         <com.neuro_sama.swarm.IconFontView
@@ -91,7 +91,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="其他开关"
+            android:text="端口状态"
             android:gravity="center"
             android:layout_gravity="center"
             android:textSize="18sp"

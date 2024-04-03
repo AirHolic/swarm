@@ -18,7 +18,7 @@
         android:textSize="30sp"
         android:id="@+id/add_task_time_hour"
         android:inputType="numberDecimal"
-
+        android:maxLength="2"
         />
     <EditText
         android:layout_width="match_parent"
@@ -27,6 +27,8 @@
         android:textSize="30sp"
         android:id="@+id/add_task_time_minute"
         android:inputType="numberDecimal"
+        android:maxLength="2"
+
         />
     <EditText
         android:layout_width="match_parent"
@@ -35,6 +37,7 @@
         android:textSize="30sp"
         android:id="@+id/add_task_time_second"
         android:inputType="numberDecimal"
+        android:maxLength="2"
         />
 
     <LinearLayout
@@ -46,7 +49,7 @@
             android:layout_width="wrap_content"
             android:layout_height="48dp"
             android:clickable="true"
-            android:text="1"
+            android:text="0"
             android:textSize="30sp"
             android:checkMark="?android:listChoiceIndicatorMultiple"
             android:gravity="center"/>
@@ -55,7 +58,7 @@
             android:layout_width="wrap_content"
             android:layout_height="48dp"
             android:clickable="true"
-            android:text="2"
+            android:text="1"
             android:textSize="30sp"
             android:checkMark="?android:listChoiceIndicatorMultiple"
             android:gravity="center"/>
@@ -64,7 +67,7 @@
             android:layout_width="wrap_content"
             android:layout_height="48dp"
             android:clickable="true"
-            android:text="3"
+            android:text="2"
             android:textSize="30sp"
             android:checkMark="?android:listChoiceIndicatorMultiple"
             android:gravity="center"/>
@@ -73,7 +76,7 @@
             android:layout_width="wrap_content"
             android:layout_height="48dp"
             android:clickable="true"
-            android:text="4"
+            android:text="3"
             android:textSize="30sp"
             android:checkMark="?android:listChoiceIndicatorMultiple"
             android:gravity="center"/>
@@ -88,7 +91,7 @@
             android:layout_width="wrap_content"
             android:layout_height="48dp"
             android:clickable="true"
-            android:text="5"
+            android:text="4"
             android:textSize="30sp"
             android:checkMark="?android:listChoiceIndicatorMultiple"
             android:gravity="center"/>
@@ -97,7 +100,7 @@
             android:layout_width="wrap_content"
             android:layout_height="48dp"
             android:clickable="true"
-            android:text="6"
+            android:text="5"
             android:textSize="30sp"
             android:checkMark="?android:listChoiceIndicatorMultiple"
             android:gravity="center"/>
@@ -106,7 +109,7 @@
             android:layout_width="wrap_content"
             android:layout_height="48dp"
             android:clickable="true"
-            android:text="7"
+            android:text="6"
             android:textSize="30sp"
             android:checkMark="?android:listChoiceIndicatorMultiple"
             android:gravity="center"/>
@@ -118,7 +121,7 @@
             android:checkMark="?android:listChoiceIndicatorMultiple"
             android:clickable="true"
             android:gravity="center"
-            android:text="8"
+            android:text="7"
             android:textSize="30sp"
             tools:ignore="TouchTargetSizeCheck" />
     </LinearLayout>

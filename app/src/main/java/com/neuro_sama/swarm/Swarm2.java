@@ -17,11 +17,15 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CompoundButton;
+import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import java.util.Objects;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -38,10 +42,18 @@ public class Swarm2 extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
-    static LinearLayout light_switch, light_regulator, other_switch;
+    @SuppressLint("StaticFieldLeak")
+    static LinearLayout light_switch, light_regulator, port_status;
+    @SuppressLint("StaticFieldLeak")
     static SeekBar light_rank;
+    @SuppressLint("StaticFieldLeak")
     static TextView light_rank_value;
+    @SuppressLint({"UseSwitchCompatOrMaterialCode", "StaticFieldLeak"})
     static Switch pwm_light_switch,pwm_light_auto_mode;
+    @SuppressLint("StaticFieldLeak")
+    static Button refresh_ports_status;
+    static CheckBox[] port_status_checkboxes = new CheckBox[8];
+    static Toast toast;
 
     public Swarm2() {
         // Required empty public constructor
@@ -86,54 +98,41 @@ public class Swarm2 extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         light_switch = view.findViewById(R.id.light_switch);
         light_regulator = view.findViewById(R.id.light_regulator);
-        other_switch = view.findViewById(R.id.other_switch);
+        port_status = view.findViewById(R.id.port_status);
 
+        toast = Toast.makeText(MainActivity.context, "操作成功", Toast.LENGTH_SHORT);
 
-        light_switch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                SharedPreferences lgsp1 = getContext().getSharedPreferences("light_switch", Context.MODE_PRIVATE);
-                int arg1 = lgsp1.getInt("light_switch", 0x00);
+        light_switch.setOnClickListener(v -> {
 
-                String[] light_switches = {"light1", "light2", "light3", "light4", "light5", "light6", "light7", "light8"};
-                boolean[] checked = {false, false, false, false, false, false, false, false};
+            String[] light_switches = {"light1", "light2", "light3", "light4", "light5", "light6", "light7", "light8"};
+            boolean[] checked = {false, false, false, false, false, false, false, false};
 
-                for (int i = 0; i < 8; i++) {
-                    if ((arg1 & (1 << i)) != 0)
-                        checked[i] = true;
-                }
+            AlertDialog.Builder builder = new AlertDialog.Builder(getContext())
+                    .setMultiChoiceItems(light_switches, checked, (dialog, which, isChecked) -> checked[which] = isChecked)
+                    .setPositiveButton("确定", (dialog, which) -> {
+                        Message msg = new Message();
+                        msg.what=3;//Device_Port
+                        msg.arg1=0;//Device_Port
+                        for (int i = 0; i < checked.length; i++)
+                        {
+                            if(checked[i])
+                                msg.arg1 |= (1 << i);
+                        }
+                        msg.arg1 = 255 - msg.arg1;
+                        msg.obj = "SET " + msg.arg1;
+                        mqtt_client.handler.sendMessage(msg);
+                        Log.d("light_switch", msg.obj.toString());
 
-                AlertDialog.Builder builder = new AlertDialog.Builder(getContext())
-                        .setMultiChoiceItems(light_switches, checked, (dialog, which, isChecked) -> {
-                            checked[which] = isChecked;
-                        })
-                        .setPositiveButton("确定", (dialog, which) -> {
-                            Message msg = new Message();
-                            msg.what=3;//Device_Port
-                            msg.obj=0;//Device_Type
-                            msg.arg1=0;//Device_Port
-                            for (int i = 0; i < checked.length; i++)
-                            {
-                                if(checked[i])
-                                    msg.arg1 |= (1 << i);
-                                msg.obj = msg.arg1;
-                            }
-                            Log.d("light_switch", String.valueOf(msg.obj));
-                            mqtt_client.handler.sendMessage(msg);
-                            SharedPreferences lgsp = getContext().getSharedPreferences("light_switch", Context.MODE_PRIVATE);
-                            SharedPreferences.Editor editor = lgsp.edit();
-                            editor.putInt("light_switch", msg.arg1);
-                            editor.apply();
-                        })
-                        .setNegativeButton("取消", (dialog, which) -> {
-                            // do something
-                        })
-                        .setTitle("灯光开关");
-                builder.create().show();
-            }
+                    })
+                    .setNegativeButton("取消", (dialog, which) -> {
+                        // do something
+                    })
+                    .setTitle("灯光开关");
+            builder.create().show();
         });
 
         light_regulator.setOnClickListener(new View.OnClickListener() {
+            @SuppressLint("SetTextI18n")
             @Override
             public void onClick(View v) {
                 LayoutInflater using_dialog_layout_xml = LayoutInflater.from(getContext());
@@ -185,7 +184,7 @@ public class Swarm2 extends Fragment {
                     }
                 });
                 pwm_light_switch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                    if(isChecked == false) {
+                    if(!isChecked) {
                         pwm_light_auto_mode.setChecked(false);
                         pwm_light_auto_mode.setEnabled(false);
                         light_rank.setProgress(0);
@@ -198,42 +197,45 @@ public class Swarm2 extends Fragment {
                     }
                 });
                 pwm_light_auto_mode.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                    if(isChecked == true) {
-                        light_rank.setEnabled(false);
-                    }
-                    else {
-                        light_rank.setEnabled(true);
-                    }
+                    light_rank.setEnabled(!isChecked);
                 });
                 builder.create().show();
             }
         });
 
-        other_switch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String[] other_switches = {"switch9", "switch10", "switch11", "switch12", "switch13", "switch14", "switch15", "switch16"};
-                boolean[] checked = {false, false, false, false, false, false, false};
-                AlertDialog.Builder builder = new AlertDialog.Builder(getContext())
-                        .setMultiChoiceItems(other_switches, null, (dialog, which, isChecked) -> {
-                            checked[which] = isChecked;
-                        })
-                        .setPositiveButton("确定", (dialog, which) -> {
-                            for (int i = 0; i < checked.length; i++)
-                            {
-                                Message msg = new Message();
-                                msg.what=3;
-                                msg.obj = i+8 +" "+checked[i];
+        port_status.setOnClickListener(v -> {
+            String[] port_status = {"port0", "port1", "port2", "port3", "port4", "port5", "port6", "port7"};
+            boolean[] checked = {false, false, false, false, false, false, false, false};
 
-                                mqtt_client.handler.sendMessage(msg);
-                            }
-                        })
-                        .setNegativeButton("取消", (dialog, which) -> {
-                            // do something
-                        })
-                        .setTitle("其他开关");
-                builder.create().show();
-            }
+            LayoutInflater using_dialog_layout_xml = LayoutInflater.from(getContext());
+            View port_status_view = using_dialog_layout_xml.inflate(R.layout.port_status_dialog, null);
+            refresh_ports_status = port_status_view.findViewById(R.id.refresh_ports_status);
+            port_status_checkboxes[0] = port_status_view.findViewById(R.id.port1);
+            port_status_checkboxes[1] = port_status_view.findViewById(R.id.port2);
+            port_status_checkboxes[2] = port_status_view.findViewById(R.id.port3);
+            port_status_checkboxes[3] = port_status_view.findViewById(R.id.port4);
+            port_status_checkboxes[4] = port_status_view.findViewById(R.id.port5);
+            port_status_checkboxes[5] = port_status_view.findViewById(R.id.port6);
+            port_status_checkboxes[6] = port_status_view.findViewById(R.id.port7);
+            port_status_checkboxes[7] = port_status_view.findViewById(R.id.port8);
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(getContext())
+                    .setView(port_status_view)
+                    .setPositiveButton("确定", (dialog, which) -> {
+
+                    })
+                    .setNegativeButton("取消", (dialog, which) -> {
+                        // do something
+                    })
+                    .setTitle("其他开关");
+            builder.create().show();
+            refresh_ports_status.setOnClickListener(v1 -> {
+                Message msg = new Message();
+                msg.what=3;//Device_Port
+                msg.obj="RD";//Device_Type
+                mqtt_client.handler.sendMessage(msg);
+            });
+
         });
     }
 
@@ -241,21 +243,16 @@ public class Swarm2 extends Fragment {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
-            switch (msg.what) {
-                case 1:
-                    Log.d("mqtt", "mqtt connected");
-                    break;
-                case 2:
-                    Log.d("mqtt", "mqtt disconnected");
-                    break;
-                case 3:
-                    Log.d("mqtt", "mqtt message received");
-                    break;
-                case 4:
-                    Log.d("mqtt", "mqtt message sent");
-                    break;
-                default:
-                    break;
+            if(msg.what == 3)
+            {
+                if(msg.obj.toString().equals("OK"))
+                    toast.show();
+                else if (Integer.parseInt(msg.obj.toString()) >= 0 && Integer.parseInt(msg.obj.toString()) <= 255)
+                    for(int i = 0; i < 8; i ++)
+                    {
+                        port_status_checkboxes[i].setChecked((Integer.parseInt(msg.obj.toString()) &
+                                (1 << i)) != 0);
+                    }
             }
         }
     };

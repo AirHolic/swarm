@@ -1,6 +1,11 @@
 package com.neuro_sama.swarm;
 
+import static com.neuro_sama.swarm.mqtt_client.pubmsg;
+import static com.neuro_sama.swarm.mqtt_interface.Control_Timer;
+import static com.neuro_sama.swarm.mqtt_interface.Device_Timer;
+
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -26,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
     private ViewPager2 viewPager2;
     private TabLayout tabLayout;
     static Toast toast;
+    static Context context;
 
     //Swarm1 swarm1 = Swarm1.newInstance("", "");
     //Bundle bundle = new Bundle();
@@ -38,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        context = getApplicationContext();
 
         mqtt_thread.start();
         toast = Toast.makeText(MainActivity.this, "mqtt_thread started", Toast.LENGTH_SHORT);
@@ -96,6 +103,8 @@ public class MainActivity extends AppCompatActivity {
             super.handleMessage(msg);
             if (msg.what == 1) {
                 toast.show();
+                long timestamp = System.currentTimeMillis()/1000;
+                pubmsg(Control_Timer, "TS "+String.valueOf(timestamp));
             }
         }
     };
