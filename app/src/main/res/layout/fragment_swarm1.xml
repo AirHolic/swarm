@@ -145,5 +145,15 @@
             android:textStyle="bold"
             />
     </LinearLayout>
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/refresh_time"
+        android:text="刷新设备时间"/>
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/warning_mode"
+        android:text="启动主动告警"/>
 
 </LinearLayout>

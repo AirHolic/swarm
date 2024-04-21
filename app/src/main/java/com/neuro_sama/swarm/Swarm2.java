@@ -100,7 +100,7 @@ public class Swarm2 extends Fragment {
         light_regulator = view.findViewById(R.id.light_regulator);
         port_status = view.findViewById(R.id.port_status);
 
-        toast = Toast.makeText(MainActivity.context, "操作成功", Toast.LENGTH_SHORT);
+        toast = Toast.makeText(MainActivity.context, "操作成功", Toast.LENGTH_LONG);
 
         light_switch.setOnClickListener(v -> {
 
@@ -127,7 +127,7 @@ public class Swarm2 extends Fragment {
                     .setNegativeButton("取消", (dialog, which) -> {
                         // do something
                     })
-                    .setTitle("灯光开关");
+                    .setTitle("端口开关");
             builder.create().show();
         });
 
@@ -227,7 +227,7 @@ public class Swarm2 extends Fragment {
                     .setNegativeButton("取消", (dialog, which) -> {
                         // do something
                     })
-                    .setTitle("其他开关");
+                    .setTitle("端口状态");
             builder.create().show();
             refresh_ports_status.setOnClickListener(v1 -> {
                 Message msg = new Message();

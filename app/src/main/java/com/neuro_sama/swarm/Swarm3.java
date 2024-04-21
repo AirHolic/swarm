@@ -144,6 +144,7 @@ public class Swarm3 extends Fragment {
                     onViewCreated(view, savedInstanceState);
                 });
                 swarm3_scroll_layout.addView(item_view);
+
             }
         }
 
@@ -292,7 +293,7 @@ public class Swarm3 extends Fragment {
             super.handleMessage(msg);
             String message = msg.obj.toString();
             Log.d("MQTT", "Message: " + message);
-            Toast.makeText(MainActivity.context, message, Toast.LENGTH_SHORT).show();
+            Toast.makeText(MainActivity.context, message, Toast.LENGTH_LONG).show();
         }
     };
 

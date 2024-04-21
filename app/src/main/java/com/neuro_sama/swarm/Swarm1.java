@@ -1,6 +1,17 @@
 package com.neuro_sama.swarm;
 
+import static android.content.Context.MODE_PRIVATE;
+import static com.neuro_sama.swarm.mqtt_client.pubmsg;
+import static com.neuro_sama.swarm.mqtt_interface.Control_Timer;
+import static com.neuro_sama.swarm.mqtt_interface.Control_Warning;
+
 import android.annotation.SuppressLint;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -9,11 +20,19 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.fragment.app.Fragment;
+
+import com.hivemq.client.mqtt.datatypes.MqttQos;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -34,6 +53,9 @@ public class Swarm1 extends Fragment {
     @SuppressLint("StaticFieldLeak")
     static TextView temperature_text, humidity_text,
             light_text, aqi_text, water_text, electric_text;
+    static Button refresh_button,warning_button;
+    static Toast toast;
+
 
     public Swarm1() {
         // Required empty public constructor
@@ -82,7 +104,37 @@ public class Swarm1 extends Fragment {
         aqi_text = view.findViewById(R.id.aqi_text);
         water_text = view.findViewById(R.id.water_text);
         electric_text = view.findViewById(R.id.electric_text);
+        refresh_button = view.findViewById(R.id.refresh_time);
+        warning_button = view.findViewById(R.id.warning_mode);
+
+        toast = Toast.makeText(requireActivity(), "", Toast.LENGTH_SHORT);
+
+        SharedPreferences sharedPreferences = requireActivity().getSharedPreferences("data", MODE_PRIVATE);
+        AtomicBoolean warning_mode = new AtomicBoolean(sharedPreferences.getBoolean("warning_mode", false));
+
+
+        refresh_button.setOnClickListener(v -> {
+            long timestamp = System.currentTimeMillis()/1000;
+            pubmsg(Control_Timer, "TS "+ timestamp, MqttQos.EXACTLY_ONCE);
+        });
+
+        warning_button.setOnClickListener(v -> {
+            if(!warning_mode.get())
+            {
+                pubmsg(Control_Warning, "ON", MqttQos.EXACTLY_ONCE);
+                warning_button.setText("关闭主动告警");
+                warning_mode.set(true);
+            }
+            else
+            {
+                pubmsg(Control_Warning, "OFF", MqttQos.EXACTLY_ONCE);
+                warning_button.setText("启动主动告警");
+                warning_mode.set(false);
+            }
+        });
+
     }
+
 
     static Handler handler = new Handler(Looper.myLooper()) {
         @SuppressLint("SetTextI18n")
@@ -103,10 +155,23 @@ public class Swarm1 extends Fragment {
                     electric_text.setText(ui_unit(str2[1], "kWh"));
                     break;
                 case 4:
-                    light_text.setText(ui_unit(str, "lux"));
+                    if(str.equals("OK")) {
+                        toast.setText("刷新成功");
+                        toast.show();
+                    }
+                    else
+                        light_text.setText(ui_unit(str, "lux"));
                     break;
                 case 5:
                     aqi_text.setText(ui_unit(str, "ppm"));
+                    break;
+                case 7:
+                    toast.setText(str);
+                    toast.show();
+                    Message message = new Message();
+                    message.what = 2;
+                    message.obj = str;
+                    MainActivity.handler.sendMessage(message);
                     break;
                 default:
                     Log.d("handler", "handleMessage: error");

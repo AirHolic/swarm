@@ -5,7 +5,13 @@ import static com.neuro_sama.swarm.mqtt_interface.Control_Timer;
 import static com.neuro_sama.swarm.mqtt_interface.Device_Timer;
 
 import android.annotation.SuppressLint;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -15,23 +21,29 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
+import com.hivemq.client.mqtt.datatypes.MqttQos;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class MainActivity extends AppCompatActivity {
 
     private List<Fragment> fragments_list;
-    private ViewPager2 viewPager2;
+    static ViewPager2 viewPager2;
     private TabLayout tabLayout;
     static Toast toast;
     static Context context;
+    static NotificationCompat.Builder builder;
+    static NotificationManagerCompat notificationManager;
 
     //Swarm1 swarm1 = Swarm1.newInstance("", "");
     //Bundle bundle = new Bundle();
@@ -47,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
         context = getApplicationContext();
 
         mqtt_thread.start();
-        toast = Toast.makeText(MainActivity.this, "mqtt_thread started", Toast.LENGTH_SHORT);
+        toast = Toast.makeText(MainActivity.this, "MQTT Connected", Toast.LENGTH_LONG);
 
         viewPager2 = findViewById(R.id.viewPager2);
         tabLayout = findViewById(R.id.tabLayout);
@@ -93,6 +105,25 @@ public class MainActivity extends AppCompatActivity {
         }).attach();//将tablayout与viewpager2绑定
 
 
+        NotificationChannel channel = new NotificationChannel("warning", "warning", NotificationManager.IMPORTANCE_HIGH);
+        NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        manager.createNotificationChannel(channel);
+
+
+
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE);
+
+        builder = new NotificationCompat.Builder(this, "warning")
+                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .setContentTitle("警告")
+                .setContentText("传感器数据异常，请检查！")
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setContentIntent(pendingIntent)
+                .setAutoCancel(true)
+                .setDefaults(Notification.DEFAULT_SOUND | Notification.DEFAULT_VIBRATE);
+        notificationManager = NotificationManagerCompat.from(this);
 
     }
 
@@ -104,8 +135,12 @@ public class MainActivity extends AppCompatActivity {
             if (msg.what == 1) {
                 toast.show();
                 long timestamp = System.currentTimeMillis()/1000;
-                pubmsg(Control_Timer, "TS "+String.valueOf(timestamp));
+                pubmsg(Control_Timer, "TS "+ timestamp, MqttQos.EXACTLY_ONCE);
             }
+            else if (msg.what == 2) {
+                notificationManager.notify(1, builder.build());
+            }
+
         }
     };
 }

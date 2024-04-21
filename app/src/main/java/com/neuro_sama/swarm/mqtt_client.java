@@ -30,14 +30,14 @@ public class mqtt_client implements mqtt_interface, Runnable {
         Log.d("mqtt", "mqtt_init: connected");
     }
 
-    public static void pubmsg(String topic, String msg) {
+    public static void pubmsg(String topic, String msg,MqttQos qos) {
         /*
           Publish "Hello" to the topic "my/test/topic" with qos = 0.
          */
         client.publishWith()
                 .topic(topic)
                 .payload(UTF_8.encode(msg))
-                .qos(MqttQos.AT_MOST_ONCE)
+                .qos(qos)
                 .send();
     }
 
@@ -92,7 +92,9 @@ public class mqtt_client implements mqtt_interface, Runnable {
             Log.d("mqtt", "recv_msg: " + msg.obj);
             String topic = get_topic(msg.what);
             String pub_msg = (String) msg.obj;
-            pubmsg(topic, pub_msg);
+            if(msg.what==6 || msg.what==3)
+                pubmsg(topic, pub_msg,MqttQos.EXACTLY_ONCE);
+            else pubmsg(topic, pub_msg,MqttQos.AT_MOST_ONCE);
 
         }
     };
@@ -110,6 +112,8 @@ public class mqtt_client implements mqtt_interface, Runnable {
             return 5;
         } else if (topic.toString().equals(Device_Timer)) {
             return 6;
+        } else if (topic.toString().equals(Device_Warning)) {
+            return 7;
         }
         return 0;
     }
@@ -132,6 +136,8 @@ public class mqtt_client implements mqtt_interface, Runnable {
                 return Control_MQ135;
             case 6:
                 return Control_Timer;
+            case 7:
+                return Control_Warning;
             default:
                 return "";
         }
@@ -152,6 +158,7 @@ interface mqtt_interface {
     String Control_BH1750 = "Control/Environment/BH1750";
     String Control_MQ135 = "Control/Environment/MQ135";
     String Control_Timer = "Control/Others/Timer";
+    String Control_Warning = "Control/Others/Warning";
 
     String Device_AHT10 = "Device/Environment/AHT10";
     String Device_LoRa = "Device/Meter/LoRa";
@@ -159,6 +166,7 @@ interface mqtt_interface {
     String Device_BH1750 = "Device/Environment/BH1750";
     String Device_MQ135 = "Device/Environment/MQ135";
     String Device_Timer = "Device/Others/Timer";
+    String Device_Warning = "Device/Others/Warning";
 
     /*
      Building the client with ssl.
