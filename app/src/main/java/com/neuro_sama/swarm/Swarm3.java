@@ -40,14 +40,21 @@ public class Swarm3 extends Fragment {
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
     @SuppressLint("StaticFieldLeak")
-    static TextView desk_time_text, desk_name_text, desk_port_text;
+    static TextView task_time_text, task_name_text, task_port_text;
     @SuppressLint("StaticFieldLeak")
     static View item_view;
     static LayoutInflater item_layout;
     @SuppressLint("StaticFieldLeak")
-    static Button desk_del;
+    static Button task_del;
     @SuppressLint("StaticFieldLeak")
     static Context context;
+
+    static LinearLayout swarm3_scroll_layout;
+    static SharedPreferences task_list_sp;
+
+    static List<String> task_list = new ArrayList<>();
+    static List<String> time_list = new ArrayList<>();
+    static List<String> port_list = new ArrayList<>();
 
 
     // TODO: Rename and change types of parameters
@@ -97,17 +104,13 @@ public class Swarm3 extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        LinearLayout swarm3_scroll_layout = view.findViewById(R.id.swarm3_scroll_layout);
+        swarm3_scroll_layout = view.findViewById(R.id.swarm3_scroll_layout);
         Button swarm3_add_task = view.findViewById(R.id.swarm3_add_task);
         context = getContext();
         swarm3_scroll_layout.removeAllViews();
 
-        List<String> task_list;
-        List<String> time_list;
-        List<String> port_list;
 
-
-        SharedPreferences task_list_sp = requireContext().getSharedPreferences("task_list", Context.MODE_PRIVATE);
+        task_list_sp = requireContext().getSharedPreferences("task_list", Context.MODE_PRIVATE);
         task_list = new ArrayList<>(task_list_sp.getStringSet("id_list", new HashSet<>()));
         time_list = new ArrayList<>(task_list_sp.getStringSet("time_list", new HashSet<>()));
         port_list = new ArrayList<>(task_list_sp.getStringSet("port_list", new HashSet<>()));
@@ -119,15 +122,15 @@ public class Swarm3 extends Fragment {
             for (int i = 0; i < task_list.size(); i++){
                 item_layout =  LayoutInflater.from(getContext());
                 item_view = item_layout.inflate(R.layout.task_item, null);
-                desk_time_text = item_view.findViewById(R.id.desk_time_text);
-                desk_name_text = item_view.findViewById(R.id.desk_name_text);
-                desk_port_text = item_view.findViewById(R.id.desk_port_text);
-                desk_del = item_view.findViewById(R.id.desk_del);
-                desk_name_text.setText(task_list.get(i));
-                desk_time_text.setText(time_list.get(i));
-                desk_port_text.setText(port_list.get(i));
+                task_time_text = item_view.findViewById(R.id.task_time_text);
+                task_name_text = item_view.findViewById(R.id.task_name_text);
+                task_port_text = item_view.findViewById(R.id.task_port_text);
+                task_del = item_view.findViewById(R.id.task_del);
+                task_name_text.setText(task_list.get(i));
+                task_time_text.setText(time_list.get(i));
+                task_port_text.setText(port_list.get(i));
                 int finalI = i;
-                desk_del.setOnClickListener(v -> {
+                task_del.setOnClickListener(v -> {
                     Message message = new Message();
                     message.what = 6;//删除任务
                     message.obj = "DT" + " " + finalTask_list.get(finalI);
@@ -211,10 +214,10 @@ public class Swarm3 extends Fragment {
 
                         item_layout =  LayoutInflater.from(getContext());
                         item_view = item_layout.inflate(R.layout.task_item, null);
-                        desk_time_text = item_view.findViewById(R.id.desk_time_text);
-                        desk_name_text = item_view.findViewById(R.id.desk_name_text);
-                        desk_port_text = item_view.findViewById(R.id.desk_port_text);
-                        desk_del = item_view.findViewById(R.id.desk_del);
+                        task_time_text = item_view.findViewById(R.id.task_time_text);
+                        task_name_text = item_view.findViewById(R.id.task_name_text);
+                        task_port_text = item_view.findViewById(R.id.task_port_text);
+                        task_del = item_view.findViewById(R.id.task_del);
 
                         Log.d("Task", "Task Name: " + task_name + " Time: " +
                                 task_time_hour + ":" + task_time_minute + ":" + task_time_second);
@@ -228,7 +231,7 @@ public class Swarm3 extends Fragment {
                             checked[i] = add_task_ports[i].isChecked();
                             if (checked[i]) {
                                 Log.d("Task", "Port " + i + " is checked");
-                                desk_port_text.setText(desk_port_text.getText() + " " + i);
+                                task_port_text.setText(task_port_text.getText() + " " + i);
                                 msg.arg1 |= (1 << i);
                             }
                         }
@@ -236,12 +239,12 @@ public class Swarm3 extends Fragment {
                         msg.obj = "AT " + task_name + " " + task_time_hour + task_time_minute + task_time_second + " " + msg.arg1;
                         mqtt_client.handler.sendMessage(msg);
                         // Save the task
-                        desk_name_text.setText(task_name);
-                        desk_time_text.setText(task_time_hour + ":" + task_time_minute + ":" + task_time_second);
+                        task_name_text.setText(task_name);
+                        task_time_text.setText(task_time_hour + ":" + task_time_minute + ":" + task_time_second);
                         String finalTask_time_hour = task_time_hour;
                         String finalTask_time_minute = task_time_minute;
                         String finalTask_time_second = task_time_second;
-                        desk_del.setOnClickListener(v1 -> {
+                        task_del.setOnClickListener(v1 -> {
                             Message message = new Message();
                             message.what = 6;//删除任务
                             message.obj = "DT" + " " + task_name;
@@ -249,7 +252,7 @@ public class Swarm3 extends Fragment {
 
                             finalTask_list.remove(task_name);
                             finalTime_list.remove(finalTask_time_hour + ":" + finalTask_time_minute + ":" + finalTask_time_second);
-                            finalPort_list.remove(desk_port_text.getText().toString());
+                            finalPort_list.remove(task_port_text.getText().toString());
                             SharedPreferences.Editor task_list_editor = task_list_sp.edit();
                             task_list_editor.putStringSet("id_list", new HashSet<>(finalTask_list));
                             task_list_editor.putStringSet("time_list", new HashSet<>(finalTime_list));
@@ -263,7 +266,7 @@ public class Swarm3 extends Fragment {
                         // Set the task item
                         finalTask_list.add(task_name);
                         finalTime_list.add(task_time_hour + ":" + task_time_minute + ":" + task_time_second);
-                        finalPort_list.add(desk_port_text.getText().toString());
+                        finalPort_list.add(task_port_text.getText().toString());
                         SharedPreferences.Editor task_list_editor = task_list_sp.edit();
                         task_list_editor.putStringSet("id_list", new HashSet<>(finalTask_list));
                         task_list_editor.putStringSet("time_list", new HashSet<>(finalTime_list));
@@ -294,6 +297,7 @@ public class Swarm3 extends Fragment {
             String message = msg.obj.toString();
             Log.d("MQTT", "Message: " + message);
             Toast.makeText(MainActivity.context, message, Toast.LENGTH_LONG).show();
+
         }
     };
 
