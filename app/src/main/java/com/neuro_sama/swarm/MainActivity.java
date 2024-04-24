@@ -2,21 +2,16 @@ package com.neuro_sama.swarm;
 
 import static com.neuro_sama.swarm.mqtt_client.pubmsg;
 import static com.neuro_sama.swarm.mqtt_interface.Control_Timer;
-import static com.neuro_sama.swarm.mqtt_interface.Device_Timer;
 
 import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -33,16 +28,17 @@ import com.hivemq.client.mqtt.datatypes.MqttQos;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class MainActivity extends AppCompatActivity {
 
     private List<Fragment> fragments_list;
     static ViewPager2 viewPager2;
-    private TabLayout tabLayout;
     static Toast toast;
+    @SuppressLint("StaticFieldLeak")
     static Context context;
+    @SuppressLint("StaticFieldLeak")
     static NotificationCompat.Builder builder;
+    @SuppressLint("StaticFieldLeak")
     static NotificationManagerCompat notificationManager;
 
     //Swarm1 swarm1 = Swarm1.newInstance("", "");
@@ -62,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
         toast = Toast.makeText(MainActivity.this, "MQTT Connected", Toast.LENGTH_LONG);
 
         viewPager2 = findViewById(R.id.viewPager2);
-        tabLayout = findViewById(R.id.tabLayout);
+        TabLayout tabLayout = findViewById(R.id.tabLayout);
 
         fragments_list = new ArrayList<>();
         fragments_list.add(new Swarm1());
@@ -109,18 +105,11 @@ public class MainActivity extends AppCompatActivity {
         NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         manager.createNotificationChannel(channel);
 
-
-
-        Intent intent = new Intent(this, MainActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE);
-
         builder = new NotificationCompat.Builder(this, "warning")
                 .setSmallIcon(R.drawable.ic_launcher_foreground)
                 .setContentTitle("警告")
                 .setContentText("传感器数据异常，请检查！")
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
-                .setContentIntent(pendingIntent)
                 .setAutoCancel(true)
                 .setDefaults(Notification.DEFAULT_SOUND | Notification.DEFAULT_VIBRATE);
         notificationManager = NotificationManagerCompat.from(this);
