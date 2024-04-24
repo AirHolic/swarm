@@ -31,7 +31,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="灯光开关"
+            android:text="端口开关"
             android:gravity="center"
             android:layout_gravity="center"
             android:textSize="18sp"

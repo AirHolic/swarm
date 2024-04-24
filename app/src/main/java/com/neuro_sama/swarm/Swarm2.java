@@ -104,7 +104,7 @@ public class Swarm2 extends Fragment {
 
         light_switch.setOnClickListener(v -> {
 
-            String[] light_switches = {"light1", "light2", "light3", "light4", "light5", "light6", "light7", "light8"};
+            String[] light_switches = {"port0", "port1", "port2", "port3", "port4", "port5", "port6", "port7"};
             boolean[] checked = {false, false, false, false, false, false, false, false};
 
             AlertDialog.Builder builder = new AlertDialog.Builder(getContext())
