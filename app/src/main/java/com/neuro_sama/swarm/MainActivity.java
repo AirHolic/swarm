@@ -4,14 +4,19 @@ import static com.neuro_sama.swarm.mqtt_client.pubmsg;
 import static com.neuro_sama.swarm.mqtt_interface.Control_Timer;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.provider.Settings;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -53,6 +58,26 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         context = getApplicationContext();
+
+        boolean areNotificationsEnabled = NotificationManagerCompat.from(this).areNotificationsEnabled();
+        if(!areNotificationsEnabled){
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(this)
+                    .setTitle("通知权限")
+                    .setMessage("告警模式需开启通知权限")
+                    .setPositiveButton("确认", (dialog, which) -> {
+                        Intent intent = new Intent();
+                        intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                        Uri uri = Uri.fromParts("package", getPackageName(), null);
+                        intent.setData(uri);
+                        startActivity(intent);
+                        })
+                        .setNegativeButton("取消", (dialog, which) -> {
+                    });
+            builder.show();
+        }
+
+
 
         mqtt_thread.start();
         toast = Toast.makeText(MainActivity.this, "MQTT Connected", Toast.LENGTH_LONG);
@@ -104,6 +129,9 @@ public class MainActivity extends AppCompatActivity {
         NotificationChannel channel = new NotificationChannel("warning", "warning", NotificationManager.IMPORTANCE_HIGH);
         NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         manager.createNotificationChannel(channel);
+
+        channel.enableVibration(true);//震动
+        channel.enableLights(true);//闪光
 
         builder = new NotificationCompat.Builder(this, "warning")
                 .setSmallIcon(R.drawable.ic_launcher_foreground)
