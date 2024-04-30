@@ -53,6 +53,7 @@ public class Swarm1 extends Fragment {
     @SuppressLint("StaticFieldLeak")
     static TextView temperature_text, humidity_text,
             light_text, aqi_text, water_text, electric_text;
+    @SuppressLint("StaticFieldLeak")
     static Button refresh_button,warning_button;
     static Toast toast;
 
@@ -107,7 +108,7 @@ public class Swarm1 extends Fragment {
         refresh_button = view.findViewById(R.id.refresh_time);
         warning_button = view.findViewById(R.id.warning_mode);
 
-        toast = Toast.makeText(requireActivity(), "", Toast.LENGTH_SHORT);
+        toast = Toast.makeText(requireActivity(), "", Toast.LENGTH_LONG);
 
         SharedPreferences sharedPreferences = requireActivity().getSharedPreferences("data", MODE_PRIVATE);
         AtomicBoolean warning_mode = new AtomicBoolean(sharedPreferences.getBoolean("warning_mode", false));

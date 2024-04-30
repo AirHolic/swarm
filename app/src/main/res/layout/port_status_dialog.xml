@@ -4,12 +4,6 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:id="@+id/port_status_dialog">
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="端口状态"
-        />
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

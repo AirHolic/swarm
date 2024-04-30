@@ -2,14 +2,7 @@ package com.neuro_sama.swarm;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -25,7 +18,9 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.Objects;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -131,81 +126,73 @@ public class Swarm2 extends Fragment {
             builder.create().show();
         });
 
-        light_regulator.setOnClickListener(new View.OnClickListener() {
-            @SuppressLint("SetTextI18n")
-            @Override
-            public void onClick(View v) {
-                LayoutInflater using_dialog_layout_xml = LayoutInflater.from(getContext());
-                View light_regulator_view = using_dialog_layout_xml.inflate(R.layout.light_regulator, null);
-                light_rank = light_regulator_view.findViewById(R.id.seekBar2);
-                light_rank_value = light_regulator_view.findViewById(R.id.light_rank_value);
-                pwm_light_switch = light_regulator_view.findViewById(R.id.pwm_light_switch);
-                pwm_light_auto_mode = light_regulator_view.findViewById(R.id.pwm_light_auto_mode);
-                pwm_light_auto_mode.setEnabled(false);
-                AlertDialog.Builder builder = new AlertDialog.Builder(getContext())
-                        .setView(light_regulator_view)
-                        .setPositiveButton("确定", (dialog, which) -> {
-                            Log.d("light_regulator", light_rank_value.getText().toString());
-                            Message msg = new Message();
-                            msg.what=4;
-                            if(pwm_light_switch.isChecked()) {
-                                if(pwm_light_auto_mode.isChecked()) {
-                                    msg.obj="AUTO";
-                                }
-                                else {
-                                    msg.obj = light_rank_value.getText().toString();
-                                }
-                            } else {
-                                msg.obj="OFF";
+        light_regulator.setOnClickListener(v -> {
+            LayoutInflater using_dialog_layout_xml = LayoutInflater.from(getContext());
+            View light_regulator_view = using_dialog_layout_xml.inflate(R.layout.light_regulator, null);
+            light_rank = light_regulator_view.findViewById(R.id.seekBar2);
+            light_rank_value = light_regulator_view.findViewById(R.id.light_rank_value);
+            pwm_light_switch = light_regulator_view.findViewById(R.id.pwm_light_switch);
+            pwm_light_auto_mode = light_regulator_view.findViewById(R.id.pwm_light_auto_mode);
+            pwm_light_auto_mode.setEnabled(false);
+            AlertDialog.Builder builder = new AlertDialog.Builder(getContext())
+                    .setView(light_regulator_view)
+                    .setPositiveButton("确定", (dialog, which) -> {
+                        Log.d("light_regulator", light_rank_value.getText().toString());
+                        Message msg = new Message();
+                        msg.what=4;
+                        if(pwm_light_switch.isChecked()) {
+                            if(pwm_light_auto_mode.isChecked()) {
+                                msg.obj="AUTO";
                             }
-                            mqtt_client.handler.sendMessage(msg);
-                        })
-                        .setNegativeButton("取消", (dialog, which) -> {
-                            // do something
-                        })
-                        .setTitle("灯光调节");
-                light_rank.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-                    @Override
-                    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                        light_rank_value.setText(String.valueOf(progress));
-                        if(progress>0) {
-                            pwm_light_switch.setChecked(true);
+                            else {
+                                msg.obj = light_rank_value.getText().toString();
+                            }
+                        } else {
+                            msg.obj="OFF";
                         }
-                    }
-
-                    @Override
-                    public void onStartTrackingTouch(SeekBar seekBar) {
-
-                    }
-
-                    @Override
-                    public void onStopTrackingTouch(SeekBar seekBar) {
+                        mqtt_client.handler.sendMessage(msg);
+                    })
+                    .setNegativeButton("取消", (dialog, which) -> {
                         // do something
+                    })
+                    .setTitle("灯光调节");
+            light_rank.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                @Override
+                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                    light_rank_value.setText(String.valueOf(progress));
+                    if(progress>0) {
+                        pwm_light_switch.setChecked(true);
                     }
-                });
-                pwm_light_switch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                    if(!isChecked) {
-                        pwm_light_auto_mode.setChecked(false);
-                        pwm_light_auto_mode.setEnabled(false);
-                        light_rank.setProgress(0);
-                        light_rank_value.setText("0");
-                    }
-                    else {
-                        pwm_light_auto_mode.setEnabled(true);
-                        light_rank.setProgress(24);
-                        light_rank_value.setText("24");
-                    }
-                });
-                pwm_light_auto_mode.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                    light_rank.setEnabled(!isChecked);
-                });
-                builder.create().show();
-            }
+                }
+
+                @Override
+                public void onStartTrackingTouch(SeekBar seekBar) {
+
+                }
+
+                @Override
+                public void onStopTrackingTouch(SeekBar seekBar) {
+                    // do something
+                }
+            });
+            pwm_light_switch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                if(!isChecked) {
+                    pwm_light_auto_mode.setChecked(false);
+                    pwm_light_auto_mode.setEnabled(false);
+                    light_rank.setProgress(0);
+                    light_rank_value.setText("0");
+                }
+                else {
+                    pwm_light_auto_mode.setEnabled(true);
+                    light_rank.setProgress(24);
+                    light_rank_value.setText("24");
+                }
+            });
+            pwm_light_auto_mode.setOnCheckedChangeListener((buttonView, isChecked) -> light_rank.setEnabled(!isChecked));
+            builder.create().show();
         });
 
         port_status.setOnClickListener(v -> {
-            String[] port_status = {"port0", "port1", "port2", "port3", "port4", "port5", "port6", "port7"};
-            boolean[] checked = {false, false, false, false, false, false, false, false};
 
             LayoutInflater using_dialog_layout_xml = LayoutInflater.from(getContext());
             View port_status_view = using_dialog_layout_xml.inflate(R.layout.port_status_dialog, null);

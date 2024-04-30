@@ -28,6 +28,7 @@ import androidx.fragment.app.Fragment;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Random;
 
 /**
@@ -51,6 +52,7 @@ public class Swarm3 extends Fragment {
     @SuppressLint("StaticFieldLeak")
     static Context context;
 
+    @SuppressLint("StaticFieldLeak")
     static LinearLayout swarm3_scroll_layout;
     static SharedPreferences task_list_sp;
 
@@ -143,10 +145,11 @@ public class Swarm3 extends Fragment {
                     hex_task_id.insert(0, "0");
             }
 
+
             LayoutInflater using_dialog_layout_xml = LayoutInflater.from(getContext());
             View dialog_view = using_dialog_layout_xml.inflate(R.layout.add_task, null);
 
-            TextView add_task_name = dialog_view.findViewById(R.id.add_task_name);
+            EditText add_task_name = dialog_view.findViewById(R.id.add_task_name);
             EditText add_task_time_hour = dialog_view.findViewById(R.id.add_task_time_hour);
             EditText add_task_time_minute = dialog_view.findViewById(R.id.add_task_time_minute);
             EditText add_task_time_second = dialog_view.findViewById(R.id.add_task_time_second);
@@ -161,7 +164,7 @@ public class Swarm3 extends Fragment {
             CheckedTextView[] add_task_ports = {add_task_port1, add_task_port2, add_task_port3,
                     add_task_port4, add_task_port5, add_task_port6, add_task_port7, add_task_port8};
 
-            add_task_name.setText(hex_task_id.toString());
+            add_task_name.setText(hex_task_id.toString().toUpperCase());
             boolean[] checked = {false, false, false, false, false, false, false, false};
             @SuppressLint("SetTextI18n") AlertDialog.Builder builder = new AlertDialog.Builder(getContext())
                     .setView(dialog_view)
@@ -183,12 +186,23 @@ public class Swarm3 extends Fragment {
                             Toast.makeText(getContext(), "请输入正确的时间", Toast.LENGTH_SHORT).show();
                             return;
                         }
+                        else if(task_name.length() < 4){
+                            Toast.makeText(getContext(), "任务名长度不足", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        String hexChars = "0123456789ABCDEF"; // 16进制字符集
+                        for(int i = 0; i < task_name.length(); i++){
+                            if(hexChars.indexOf(task_name.charAt(i)) == -1){
+                                Toast.makeText(getContext(), "任务名只能包含大写16进制字符", Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+                        }
 
-                        if(Integer.parseInt(task_time_hour) < 10 && Integer.parseInt(task_time_hour) != 0)
+                        if(Integer.parseInt(task_time_hour) < 10 && task_time_hour.length() < 2)
                             task_time_hour = "0" + task_time_hour;
-                        if(Integer.parseInt(task_time_minute) < 10 && Integer.parseInt(task_time_minute) != 0)
+                        if(Integer.parseInt(task_time_minute) < 10 && task_time_minute.length() < 2)
                             task_time_minute = "0" + task_time_minute;
-                        if(Integer.parseInt(task_time_second) < 10 && Integer.parseInt(task_time_second) != 0)
+                        if(Integer.parseInt(task_time_second) < 10 && task_time_second.length() < 2)
                             task_time_second = "0" + task_time_second;
 
                         item_layout =  LayoutInflater.from(getContext());
@@ -207,22 +221,24 @@ public class Swarm3 extends Fragment {
                         msg.arg1 = 0;//port
 
                         task_port = "Null";
+                        StringBuilder task_port_str = new StringBuilder();
 
                         for (int i = 0; i < add_task_ports.length; i++) {
                             checked[i] = add_task_ports[i].isChecked();
                             if (checked[i]) {
                                 if(task_port.equals("Null")) {
                                     task_port = i + "";
+                                    task_port_str.append(i);
                                 }
                                 else
                                 {
-                                    task_port = task_port + "," + i;
+                                    task_port_str.append(",").append(i);
                                 }
-                                Log.d("Task", "Port " + i + " is checked "+task_port);
+                                //Log.d("Task", "Port " + i + " is checked "+task_port);
                                 msg.arg1 |= (1 << i);
                             }
                         }
-
+                        task_port = task_port_str.toString();
                         task_port_text.setText(task_port);
                         msg.arg1 = 255 - msg.arg1;
                         msg.obj = "AT " + task_name + " " + task_time_hour + task_time_minute + task_time_second + " " + msg.arg1;
@@ -351,7 +367,6 @@ public class Swarm3 extends Fragment {
                         editor.putStringSet("port_list", new HashSet<>(port_list));
                         editor.apply();
                         refreshview();
-                        return;
                     }
 
             }
@@ -362,6 +377,7 @@ public class Swarm3 extends Fragment {
                     if(sub_message.equals(task_list.get(i))) {
                         task_list.remove(i);
                         time_list.remove(i);
+                        port_list.remove(i);
                         task_list_sp = Swarm3.context.getSharedPreferences("task_list", Context.MODE_PRIVATE);
                         SharedPreferences.Editor editor = task_list_sp.edit().clear();
                         editor.putStringSet("id_list", new HashSet<>(task_list));

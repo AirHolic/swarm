@@ -89,12 +89,14 @@ public class mqtt_client implements mqtt_interface, Runnable {
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
 
-            Log.d("mqtt", "recv_msg: " + msg.obj);
+            Log.d("mqtt", "PubMQTTMsg: " + msg.obj);
             String topic = get_topic(msg.what);
             String pub_msg = (String) msg.obj;
-            if(msg.what==6 || msg.what==3)
+            if(msg.what==6 || msg.what==3 || msg.what==7)
+                //如果是定时器或者端口控制或者警告信息，qos设置为2
                 pubmsg(topic, pub_msg,MqttQos.EXACTLY_ONCE);
             else pubmsg(topic, pub_msg,MqttQos.AT_MOST_ONCE);
+                //如果是其他设备，qos设置为0
 
         }
     };

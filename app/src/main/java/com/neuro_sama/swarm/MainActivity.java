@@ -78,7 +78,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
-
         mqtt_thread.start();
         toast = Toast.makeText(MainActivity.this, "MQTT Connected", Toast.LENGTH_LONG);
 
@@ -157,7 +156,6 @@ public class MainActivity extends AppCompatActivity {
             else if (msg.what == 2) {
                 notificationManager.notify(1, builder.build());
             }
-
         }
     };
 }

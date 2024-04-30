@@ -5,12 +5,14 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <TextView
+    <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="任务名称"
+        android:hint="仅可输入4位16进制数,需大写,如F987"
         android:textSize="30sp"
-        android:id="@+id/add_task_name"/>
+        android:id="@+id/add_task_name"
+        android:maxLength="4"
+        />
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
